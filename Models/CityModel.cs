@@ -1,6 +1,6 @@
 ﻿namespace SiteCalculations.Models
 {
-    internal class CityModel
+    public class CityModel
     {
         public string CityName { get; set; }
         public string Documents { get; set; }
