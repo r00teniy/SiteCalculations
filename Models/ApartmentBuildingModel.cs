@@ -7,7 +7,7 @@ namespace SiteCalculations.Models
     {
         // Buildimg part
         public string StageName { get; private set; }
-        public string BuildingName { get; private set; }
+        public string Name { get; private set; }
         public double ConstructionArea { get; private set; }
         public double PlotArea { get; private set; }
         public double BuildingPartPercent { get; private set; }
@@ -28,10 +28,6 @@ namespace SiteCalculations.Models
         public double TotalDogsAreaReq { get; private set; }
         public double TotalAreaReq { get; private set; }
         public double TotalGreeneryAreaReq { get; private set; }
-        // Parking
-        public int TotalLongParkingReq { get; private set; }
-        public int TotalShortParkingReq { get; private set; }
-        public int TotalGuestParkingReq { get; private set; }
         // Existing part
         //Areas
         public double TotalChildAreaEx { get; private set; }
@@ -43,14 +39,14 @@ namespace SiteCalculations.Models
         public double TotalAreaEx { get; private set; }
         public double TotalGreeneryAreaEx { get; private set; }
         // Parking
-        public int TotalLongParkingEx { get; private set; }
-        public int TotalShortParkingEx { get; private set; }
-        public int TotalGuestParkingEx { get; private set; }
+        public ParkingModel TotalParkingReq { get; private set; }
+        public ParkingModel TotalParkingEx { get; private set; }
+
         //Combining building from sections
-        public ApartmentBuildingModel(CityModel city, List<ApartmentBuildingSectionModel> sectionList, double plotArea, ExParametersModel ExParam, int[] parking)
+        public ApartmentBuildingModel(CityModel city, List<ApartmentBuildingSectionModel> sectionList, double plotArea, ExParametersModel ExParam, ParkingModel exParking)
         {
             StageName = sectionList[0].StageName;
-            BuildingName = sectionList[0].BuildingName;
+            Name = sectionList[0].BuildingName;
             foreach (var sec in sectionList)
             {
                 ConstructionArea += sec.ConstructionArea;
@@ -82,19 +78,14 @@ namespace SiteCalculations.Models
             TotalAreaEx = ExParam.TotalAreaEx;
             TotalGreeneryAreaEx = ExParam.TotalGreeneryAreaEx;
             // Parking requires
-            var park = city.Parking.CalculateParking(TotalResidents, TotalApartmentArea, TotalNumberOfApartments, TotalCommerceArea);
-            TotalLongParkingReq = park[0];
-            TotalShortParkingReq = park[1];
-            TotalGuestParkingReq = park[2];
+            TotalParkingReq = city.Parking.CalculateParking(Name, new double[]{ TotalResidents, TotalApartmentArea, TotalNumberOfApartments, TotalCommerceArea, 0, 0, 0 });
             // existing
-            TotalLongParkingEx = parking[0];
-            TotalShortParkingEx = parking[1];
-            TotalGuestParkingEx = parking[2];
+            TotalParkingEx = exParking;
         }
-        public ApartmentBuildingModel(CityModel city, string[] buildingParams, double plotArea, ExParametersModel ExParam, int[] parking)
+        public ApartmentBuildingModel(CityModel city, string[] buildingParams, double plotArea, ExParametersModel ExParam, ParkingModel exParking)
         {
             StageName = buildingParams[0];
-            BuildingName = buildingParams[1];
+            Name = buildingParams[1];
             ConstructionArea = Convert.ToDouble(buildingParams[2]);
             Floors = buildingParams[3];
             TotalNumberOfApartments = Convert.ToInt32(buildingParams[4]);
@@ -123,14 +114,9 @@ namespace SiteCalculations.Models
             TotalAreaEx = ExParam.TotalAreaEx;
             TotalGreeneryAreaEx = ExParam.TotalGreeneryAreaEx;
             // Parking requires
-            var park = city.Parking.CalculateParking(TotalResidents, TotalApartmentArea, TotalNumberOfApartments, TotalCommerceArea);
-            TotalLongParkingReq = park[0];
-            TotalShortParkingReq = park[1];
-            TotalGuestParkingReq = park[2];
+            TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { TotalResidents, TotalApartmentArea, TotalNumberOfApartments, TotalCommerceArea, 0, 0, 0 });
             // existing
-            TotalLongParkingEx = parking[0];
-            TotalShortParkingEx = parking[1];
-            TotalGuestParkingEx = parking[2];
+            TotalParkingEx = exParking;
         }
     }
 }

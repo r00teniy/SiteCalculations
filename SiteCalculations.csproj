@@ -103,17 +103,20 @@
     <Compile Include="Models\CityModel.cs" />
     <Compile Include="Models\EntityBorderModel.cs" />
     <Compile Include="Models\ExParametersModel.cs" />
+    <Compile Include="Models\HospitalModel.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="Models\ParkingBuildingModel.cs" />
+    <Compile Include="Models\ParkingModel.cs" />
     <Compile Include="Models\IAreaReq.cs" />
     <Compile Include="Models\IBaseBuilding.cs" />
     <Compile Include="Models\IParking.cs" />
     <Compile Include="Models\ParkingFromPeopleModel.cs" />
     <Compile Include="Models\BaseBigAreaModel.cs" />
+    <Compile Include="Models\KindergartenModel.cs" />
+    <Compile Include="Models\SchoolModel.cs" />
     <Compile Include="Models\SiteModel.cs" />
     <Compile Include="Models\StageModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

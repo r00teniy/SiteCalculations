@@ -5,6 +5,6 @@
         double LongParkingReq { get; set; }
         double ShortParkingReq { get; set; }
         double GuestParkingReq { get; set; }
-        int[] CalculateParking(int numberOfPeople, double apartmentArea, int numberOfApartments, double commerceArea);
+        ParkingModel CalculateParking(string name, double[] parameters);
     }
 }

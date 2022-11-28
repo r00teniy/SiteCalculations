@@ -2,6 +2,9 @@
 {
     abstract public class BaseBigAreaModel
     {
+        public CityModel City { get; set;}
+        public ParkingModel TotalParkingReq { get; set;}
+        public ParkingModel TotalParkingEx { get; set; }
         public string Name { get; set; }
         public double TotalConstructionArea { get; set; }
         public double PlotArea { get; set; }
@@ -20,12 +23,7 @@
         public double TotalDogsAreaReq { get; set; }
         public double TotalAreaReq { get; set; }
         public double TotalGreeneryAreaReq { get; set; }
-        // Parking
-        public int TotalLongParkingReq { get; set; }
-        public int TotalShortParkingReq { get; set; }
-        public int TotalGuestParkingReq { get; set; }
         // Existing part
-        //Areas
         public double TotalChildAreaEx { get; set; }
         public double TotalSportAreaEx { get; set; }
         public double TotalRestAreaEx { get; set; }
@@ -34,9 +32,13 @@
         public double TotalTrashAreaEx { get; set; }
         public double TotalAreaEx { get; set; }
         public double TotalGreeneryAreaEx { get; set; }
-        // Parking
-        public int TotalLongParkingEx { get; set; }
-        public int TotalShortParkingEx { get; set; }
-        public int TotalGuestParkingEx { get; set; }
+        //Social req
+        public double SchoolsReq { get; set; }
+        public double KindergartensReq { get; set; }
+        public double HospitalsReq { get; set; }
+        //Social Ex
+        public double SchoolsEx { get; set; }
+        public double KindergartensEx { get; set; }
+        public double HospitalsEx { get; set; }
     }
 }
