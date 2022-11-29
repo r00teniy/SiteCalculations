@@ -8,7 +8,7 @@ namespace SiteCalculations.Models
         public int SectionNumber { get; set; }
         public int NumberOfFloors { get; set; }
         public string StageName { get; set; }
-        public string BuildingName { get; set; }
+        public string Name { get; set; }
         public double ConstructionArea { get; set; }
         public double ApartmentsArea { get; set; }
         public double CommerceArea { get; set; }
@@ -17,7 +17,7 @@ namespace SiteCalculations.Models
         public ApartmentBuildingSectionModel(string[] parameters)
         {
             StageName = parameters[0];
-            BuildingName = parameters[1];
+            Name = parameters[1];
             SectionNumber = Convert.ToInt32(parameters[2]);
             NumberOfFloors = Convert.ToInt32(parameters[3]);
             NumberOfApartments = Convert.ToInt32(parameters[4]);

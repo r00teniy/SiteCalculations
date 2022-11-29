@@ -8,7 +8,7 @@ namespace SiteCalculations.Models
         // Buildimg part
         public string StageName { get; private set; }
         public string Name { get; private set; }
-        public double ConstructionArea { get; private set; }
+        public double TotalConstructionArea { get; private set; }
         public double PlotArea { get; private set; }
         public double BuildingPartPercent { get; private set; }
         public string Floors { get; private set; }
@@ -46,18 +46,18 @@ namespace SiteCalculations.Models
         public ApartmentBuildingModel(CityModel city, List<ApartmentBuildingSectionModel> sectionList, double plotArea, ExParametersModel ExParam, ParkingModel exParking)
         {
             StageName = sectionList[0].StageName;
-            Name = sectionList[0].BuildingName;
+            Name = sectionList[0].Name;
             foreach (var sec in sectionList)
             {
-                ConstructionArea += sec.ConstructionArea;
+                TotalConstructionArea += sec.ConstructionArea;
                 TotalNumberOfApartments += sec.NumberOfApartments;
                 TotalApartmentArea += sec.ApartmentsArea;
                 TotalCommerceArea += sec.CommerceArea;
                 Floors += sec.NumberOfFloors.ToString()+", ";
             }
-            PlotArea = plotArea;
+            PlotArea = Math.Round(plotArea, 2);
             TotalResidents = Convert.ToInt32(Math.Floor(TotalApartmentArea / city.SqMPerPerson));
-            BuildingPartPercent = 100 * ConstructionArea / plotArea;
+            BuildingPartPercent = 100 * TotalConstructionArea / plotArea;
             // requirements
             var req = city.AreaReq.CalculateReqArea(TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
             TotalChildAreaReq = req[0];
@@ -86,14 +86,14 @@ namespace SiteCalculations.Models
         {
             StageName = buildingParams[0];
             Name = buildingParams[1];
-            ConstructionArea = Convert.ToDouble(buildingParams[2]);
+            TotalConstructionArea = Convert.ToDouble(buildingParams[2]);
             Floors = buildingParams[3];
             TotalNumberOfApartments = Convert.ToInt32(buildingParams[4]);
             TotalApartmentArea = Convert.ToDouble(buildingParams[5]);
             TotalCommerceArea = Convert.ToDouble(buildingParams[6]);
             PlotArea = plotArea;
             TotalResidents = Convert.ToInt32(Math.Floor(TotalApartmentArea / city.SqMPerPerson));
-            BuildingPartPercent = 100 * ConstructionArea / plotArea;
+            BuildingPartPercent = 100 * TotalConstructionArea / plotArea;
             // requirements
             var req = city.AreaReq.CalculateReqArea(TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
             TotalChildAreaReq = req[0];

@@ -1,4 +1,5 @@
 ﻿using Autodesk.Windows.ToolBars;
+using System;
 using System.Collections.Generic;
 
 namespace SiteCalculations.Models
@@ -7,18 +8,18 @@ namespace SiteCalculations.Models
     {
         public List<string> Buildings { get; private set; }
 
-        public StageModel(CityModel city, List<IBaseBuilding> buildingsList)
+        public StageModel(CityModel city, double plotArea, List<IBaseBuilding> buildingsList)
         {
             Name = buildingsList[0].StageName;
             City = city;
             Buildings = new List<string>();
             var parkReq = new List<ParkingModel>();
             var parkEx = new List<ParkingModel>();
+            PlotArea = Math.Round(plotArea,2);
             foreach (var bd in buildingsList)
             {
                 Buildings.Add(bd.Name);
-                TotalConstructionArea += bd.ConstructionArea;
-                PlotArea += bd.PlotArea;
+                TotalConstructionArea += bd.TotalConstructionArea;
                 parkReq.Add(bd.TotalParkingReq);
                 parkEx.Add(bd.TotalParkingEx);
                 // for apartmentbuilding
@@ -60,7 +61,7 @@ namespace SiteCalculations.Models
             }
             TotalParkingReq = new ParkingModel(Name, parkReq);
             TotalParkingEx = new ParkingModel(Name, parkEx);
-            BuildingPartPercent = 100 * TotalConstructionArea / PlotArea;
+            BuildingPartPercent = Math.Round(100 * TotalConstructionArea / PlotArea, 2);
             SchoolsReq = TotalResidents * city.SchoolsReq;
             KindergartensReq = TotalResidents * city.KindergartensReq;
             HospitalsReq = TotalResidents * city.HospitalsReq;
