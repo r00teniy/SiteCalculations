@@ -1,16 +1,10 @@
-﻿using System;
-using Autodesk.AutoCAD.Geometry;
-using Autodesk.AutoCAD.ApplicationServices;
+﻿using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
-using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Runtime;
-using System.Reflection;
 using SiteCalculations.Models;
 using System.Collections.Generic;
-using static System.Collections.Specialized.BitVector32;
-using Autodesk.AutoCAD.Windows.Data;
 using System.Linq;
-using System.Xml.Linq;
+
 
 [assembly: CommandClass(typeof(SiteCalculations.Main))]
 
@@ -64,7 +58,11 @@ namespace SiteCalculations
             }
             SiteModel site = new SiteModel(city, "Домодедово", borders.FirstOrDefault(c => c.Name == "Домодедово").Area, stages);
             List<BaseBigAreaModel> sortedStages = f.Sort_List_By_PropertyName_Generic("Ascending","Name",stages);
+            f.CreateSiteTable(site);
+            f.CreateSiteTable(site, sortedStages);
             f.CreateSiteTable(site, sortedStages, buildingsByStage);
+
+            f.CreateSiteTable(null, null, null, sortedStages[0], buildingsByStage[0]);
         }
     }
 }

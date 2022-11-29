@@ -8,6 +8,7 @@ using Autodesk.AutoCAD.Geometry;
 using System.Reflection;
 using SiteCalculations.Models;
 using System.Collections;
+using System.Security.Cryptography;
 
 
 namespace SiteCalculations
@@ -46,6 +47,9 @@ namespace SiteCalculations
                 "- спортивных площадок", "- площадок отдыха", "- хозяйственных площадок", "- площадок для мусороконтейнеров", "- площадок выгула собак",
                 "Площадь озеленения", "Кол-во парковок для постоянного храниния а/м", "Кол-во парковок для временного хранения а/м", "Кол-во гостевых парковок",
                 "Кол-во мест в Школах", "Кол-во мест в садиках", "Кол-во посетителей в день в больницах" };
+        // Table parameters
+        double row_height = 8;
+        double column_width = 12;
         public List<ExParametersModel> GetExParameters()
         {
             List<ExParametersModel> output = new List<ExParametersModel>();
@@ -72,8 +76,8 @@ namespace SiteCalculations
                             }
                         }
                     }
-
                 }
+                tr.Commit();
             }
             return output;
         }
@@ -104,6 +108,7 @@ namespace SiteCalculations
                         }
                     }
                 }
+                tr.Commit();
             }
             return output;
         }
@@ -180,6 +185,7 @@ namespace SiteCalculations
                         }
                     }
                 }
+                tr.Commit();
             }
             return output;
         }
@@ -215,6 +221,7 @@ namespace SiteCalculations
                         }
                     }
                 }
+                tr.Commit();
             }
             return output;
         }
@@ -225,38 +232,43 @@ namespace SiteCalculations
             pPtOpts.Message = "\nВыберете точку положения таблицы: ";
             pPtRes = ed.GetPoint(pPtOpts);
             Point3d pt = pPtRes.Value;
-            /*if (pPtRes.Status == PromptStatus.Cancel)
-            {
-                return;
-            }*/
             return pt;
         }
-        public void CreateSiteTable(SiteModel site, List<BaseBigAreaModel> stages = null, List<List<IBaseBuilding>> buildings = null)
+        public void CreateSiteTable(SiteModel site = null, List<BaseBigAreaModel> stages = null, List<List<IBaseBuilding>> buildingsByStage = null, BaseBigAreaModel stage = null, List<IBaseBuilding> buildings = null)
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
-            using (Transaction trans = db.TransactionManager.StartTransaction())
+            using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 using (DocumentLock acLckDoc = doc.LockDocument())
                 {
-                    var blockTable = trans.GetObject(db.BlockTableId, OpenMode.ForRead, false) as BlockTable;
-                    var blocktableRecord = trans.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
-                    Table tb = new Table();
-                    tb.TableStyle = db.Tablestyle;
-                    tb.Position = GetInsertionPoint();
-                    // row height
-                    double row_height = 8;
-                    // column width
-                    double column_width = 12;
+                    var blockTable = tr.GetObject(db.BlockTableId, OpenMode.ForRead, false) as BlockTable;
+                    var blocktableRecord = tr.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                    //Adding stages to site if they are provided.
+                    List<BaseBigAreaModel> bigcol = new List<BaseBigAreaModel>();
+                    if (site !=null)
+                    {
+                        bigcol.Add(site);
+                    }
+                    if (stages != null)
+                    {
+                        bigcol.AddRange(stages);
+                    }
+                    if (stage != null)
+                    {
+                        bigcol.Add(stage);
+                    }
+                    Table tb = new Table
+                    {
+                        TableStyle = db.Tablestyle,
+                        Position = GetInsertionPoint()
+                    };
                     tb.InsertRows(1, 30, 1);
                     tb.InsertColumns(1, 25, 1);
                     tb.SetColumnWidth(25);
                     tb.InsertColumns(3, column_width, 21);
                     //First line
-                    tb.Cells[0, 0].TextString = "ТЭП площадки " + site.Name + " в городе " + site.City.CityName;
-                    List<BaseBigAreaModel> bigcol = new List<BaseBigAreaModel>();
-                    bigcol.Add(site);
-                    bigcol.AddRange(stages);
+                    tb.Cells[0, 0].TextString = "ТЭП площадки " + bigcol[0].Name; // TODO: FIX FOR DIFFERENT OPTIONS
                     //for tracking
                     int current_row = 1;
                     //filling top row
@@ -268,68 +280,58 @@ namespace SiteCalculations
                     // sites and stages
                     foreach (var item in bigcol)
                     {
-                        tb.InsertRows(current_row, row_height, 2);
-                        tb.Cells[current_row, 1].TextString = "Требуется:";
-                        tb.Cells[current_row + 1, 1].TextString = "Запроектировано:";
-                        CellRange nameRange = CellRange.Create(tb,current_row,0, current_row+1,0);
-                        tb.MergeCells(nameRange);
-                        tb.Cells[current_row,0].TextString= item.Name;
-                        //for tracking2
-                        int current_column = 2;
-                        //Adding reneral parameters
-                        AddObjectDataToRowFromParameterArray(ref tb, current_row+1, ref current_column, generalParamArray, item, 0, true);
-                        //Adding area parameters
-                        AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, livingReqParamArray, item);
-                        AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, livingExParamArray, item, 0, true);
-                        //Adding parking parameters
-                        AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, parkingParamArray, item.TotalParkingReq);
-                        AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, parkingParamArray, item.TotalParkingEx, 0, true);
-                        //Adding social parameters
-                        AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, socialReqParamArray, item);
-                        AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, socialReqParamArray, item, 0, true);
-                        current_row += 2;
-                        if (buildings != null)
+                        AddAllDataForSingleObject(ref tb, ref current_row, 2, item);
+                        if (buildingsByStage != null)
                         {
                             int bId = 0;
-                            for (int i = 0; i < buildings.Count; i++)
+                            for (int i = 0; i < buildingsByStage.Count; i++)
                             {
-                                if (buildings[i][0].StageName == item.Name)
-                                {
-                                    bId = i;
-                                }
+                                if (buildingsByStage[i][0].StageName == item.Name) { bId = i; }
                             }
-                            foreach (var bItem in buildings[bId])
+                            foreach (var bItem in buildingsByStage[bId])
                             {
-                                tb.InsertRows(current_row, row_height, 2);
-                                tb.Cells[current_row, 1].TextString = "Требуется:";
-                                tb.Cells[current_row + 1, 1].TextString = "Запроектировано:";
-                                tb.MergeCells(nameRange);
-                                tb.Cells[current_row, 0].TextString = bItem.Name;
-                                //for tracking2
-                                current_column = 2;
-                                //Adding reneral parameters
-                                AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, generalParamArray, bItem, 0, true);
-                                //Adding area parameters
-                                AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, livingReqParamArray, bItem);
-                                AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, livingExParamArray, bItem, 0, true);
-                                //Adding parking parameters
-                                AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, parkingParamArray, bItem.TotalParkingReq);
-                                AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, parkingParamArray, bItem.TotalParkingEx, 0, true);
-                                //Adding social parameters
-                                AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, socialReqParamArray, bItem);
-                                AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, socialReqParamArray, bItem, 0, true);
-                                current_row += 2;
+                                AddAllDataForSingleObject(ref tb, ref current_row, 2, bItem);
+                            }
+                        }
+                        if (buildings != null)
+                        {
+                            foreach (var bem in buildings)
+                            {
+                                AddAllDataForSingleObject(ref tb, ref current_row, 2, bem);
                             }
                         }
                     }
-                    
-                    
                     tb.GenerateLayout();
                     blocktableRecord.AppendEntity(tb);
-                    trans.AddNewlyCreatedDBObject(tb, true);
+                    tr.AddNewlyCreatedDBObject(tb, true);
                 }
-                trans.Commit();
+                tr.Commit();
             }
+        }
+        public void AddAllDataForSingleObject<T>(ref Table tb, ref int current_row, int starting_column,T obj)
+        {
+            tb.InsertRows(current_row, row_height, 2);
+            tb.Cells[current_row, 1].TextString = "Требуется:";
+            tb.Cells[current_row + 1, 1].TextString = "Запроектировано:";
+            CellRange nameRange = CellRange.Create(tb, current_row, 0, current_row + 1, 0);
+            tb.MergeCells(nameRange);
+            tb.Cells[current_row, 0].TextString = GetObjectPropertyByName(obj, "Name").ToString();
+            //Getting separate objects
+            ParkingModel parking = GetObjectPropertyByName(obj, "TotalParkingReq") as ParkingModel;
+            //for tracking2
+            int current_column = starting_column;
+            //Adding reneral parameters
+            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, generalParamArray, obj, 0, true);
+            //Adding area parameters
+            AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, livingReqParamArray, obj);
+            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, livingExParamArray, obj, 0, true);
+            //Adding parking parameters
+            AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, parkingParamArray, parking);
+            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, parkingParamArray, parking, 0, true);
+            //Adding social parameters
+            AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, socialReqParamArray, obj);
+            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, socialReqParamArray, obj, 0, true);
+            current_row += 2;
         }
         //Function adds data from object, parameters are in array
         public void AddObjectDataToRowFromParameterArray<T>(ref Table tb, int current_row, ref int current_column, string[] array, T obj, int startPositionInArray = 0, bool ChangeCurrentColumn = false)

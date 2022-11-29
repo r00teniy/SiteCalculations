@@ -57,7 +57,7 @@ namespace SiteCalculations.Models
             }
             PlotArea = Math.Round(plotArea, 2);
             TotalResidents = Convert.ToInt32(Math.Floor(TotalApartmentArea / city.SqMPerPerson));
-            BuildingPartPercent = 100 * TotalConstructionArea / plotArea;
+            BuildingPartPercent = Math.Round(100 * TotalConstructionArea / plotArea, 2);
             // requirements
             var req = city.AreaReq.CalculateReqArea(TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
             TotalChildAreaReq = req[0];
@@ -93,7 +93,7 @@ namespace SiteCalculations.Models
             TotalCommerceArea = Convert.ToDouble(buildingParams[6]);
             PlotArea = plotArea;
             TotalResidents = Convert.ToInt32(Math.Floor(TotalApartmentArea / city.SqMPerPerson));
-            BuildingPartPercent = 100 * TotalConstructionArea / plotArea;
+            BuildingPartPercent = Math.Round(100 * TotalConstructionArea / plotArea, 2);
             // requirements
             var req = city.AreaReq.CalculateReqArea(TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
             TotalChildAreaReq = req[0];
