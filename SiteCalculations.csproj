@@ -87,6 +87,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -94,6 +96,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CityModelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CityModelForm.Designer.cs">
+      <DependentUpon>CityModelForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Functions.cs" />
     <Compile Include="Models\ApartmentBuildingModel.cs" />
     <Compile Include="Models\ApartmentBuildingSectionModel.cs" />
@@ -102,9 +110,9 @@
     <Compile Include="Models\AreaReqFromPeopleModel.cs" />
     <Compile Include="Models\CityModel.cs" />
     <Compile Include="Models\EntityBorderModel.cs" />
-    <Compile Include="Models\ExParametersModel.cs" />
     <Compile Include="Models\HospitalModel.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Models\ParkingBlockModel.cs" />
     <Compile Include="Models\ParkingBuildingModel.cs" />
     <Compile Include="Models\ParkingModel.cs" />
     <Compile Include="Models\IAreaReq.cs" />
@@ -116,7 +124,13 @@
     <Compile Include="Models\SchoolModel.cs" />
     <Compile Include="Models\SiteModel.cs" />
     <Compile Include="Models\StageModel.cs" />
+    <Compile Include="Models\AmenitiesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CityModelForm.resx">
+      <DependentUpon>CityModelForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

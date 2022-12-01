@@ -10,6 +10,6 @@
         double DogsReq { get; set; }
         double TotalReq { get; set; }
         double GreeneryReq { get; set; }
-        double[] CalculateReqArea(int numberOfPeople, double ApartmentArea, int numberOfApartments);
+        AmenitiesModel CalculateReqArea(string name, int numberOfPeople, double ApartmentArea, int numberOfApartments);
     }
 }

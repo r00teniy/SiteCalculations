@@ -1,5 +1,4 @@
-﻿using Autodesk.Windows.ToolBars;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace SiteCalculations.Models
@@ -13,38 +12,26 @@ namespace SiteCalculations.Models
             Name = buildingsList[0].StageName;
             City = city;
             Buildings = new List<string>();
-            var parkReq = new List<ParkingModel>();
-            var parkEx = new List<ParkingModel>();
+            var parkingReq = new List<ParkingModel>();
+            var parkingEx = new List<ParkingModel>();
+            var amenitiesReqList = new List<AmenitiesModel>();
+            var amenitiesExList = new List<AmenitiesModel>();
             PlotArea = Math.Round(plotArea,2);
             foreach (var bd in buildingsList)
             {
                 Buildings.Add(bd.Name);
                 TotalConstructionArea += bd.TotalConstructionArea;
-                parkReq.Add(bd.TotalParkingReq);
-                parkEx.Add(bd.TotalParkingEx);
+                parkingReq.Add(bd.TotalParkingReq);
+                parkingEx.Add(bd.TotalParkingEx);
                 // for apartmentbuilding
                 if (bd is ApartmentBuildingModel mod)
                 {
+                    amenitiesReqList.Add(mod.AmenitiesReq);
+                    amenitiesExList.Add(mod.AmenitiesEx);
                     TotalResidents += mod.TotalResidents;
                     TotalNumberOfApartments += mod.TotalNumberOfApartments;
                     TotalApartmentArea += mod.TotalApartmentArea;
                     TotalCommerceArea += mod.TotalCommerceArea;
-                    TotalChildAreaReq += mod.TotalChildAreaReq;
-                    TotalSportAreaReq += mod.TotalSportAreaReq;
-                    TotalRestAreaReq += mod.TotalRestAreaReq;
-                    TotalUtilityAreaReq += mod.TotalUtilityAreaReq;
-                    TotalTrashAreaReq += mod.TotalTrashAreaReq;
-                    TotalDogsAreaReq += mod.TotalDogsAreaReq;
-                    TotalAreaReq += mod.TotalAreaReq;
-                    TotalGreeneryAreaReq += mod.TotalGreeneryAreaReq;
-                    TotalChildAreaEx += mod.TotalChildAreaEx;
-                    TotalSportAreaEx += mod.TotalSportAreaEx;
-                    TotalRestAreaEx += mod.TotalRestAreaEx;
-                    TotalUtilityAreaEx += mod.TotalUtilityAreaEx;
-                    TotalDogsAreaEx += mod.TotalDogsAreaEx;
-                    TotalTrashAreaEx += mod.TotalTrashAreaEx;
-                    TotalAreaEx += mod.TotalAreaEx;
-                    TotalGreeneryAreaEx += mod.TotalGreeneryAreaEx;
                 }
                 if (bd is SchoolModel sm)
                 {
@@ -59,8 +46,10 @@ namespace SiteCalculations.Models
                     HospitalsEx += hm.NumberOfPatientsPerDay;
                 }
             }
-            TotalParkingReq = new ParkingModel(Name, parkReq);
-            TotalParkingEx = new ParkingModel(Name, parkEx);
+            AmenitiesReq = new AmenitiesModel(Name, amenitiesReqList);
+            AmenitiesEx = new AmenitiesModel(Name, amenitiesExList);
+            TotalParkingReq = new ParkingModel(Name, parkingReq);
+            TotalParkingEx = new ParkingModel(Name, parkingEx);
             BuildingPartPercent = Math.Round(100 * TotalConstructionArea / PlotArea, 2);
             SchoolsReq = TotalResidents * city.SchoolsReq;
             KindergartensReq = TotalResidents * city.KindergartensReq;

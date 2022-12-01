@@ -8,8 +8,13 @@ using Autodesk.AutoCAD.Geometry;
 using System.Reflection;
 using SiteCalculations.Models;
 using System.Collections;
-using System.Security.Cryptography;
-
+using System;
+using System.Globalization;
+using Autodesk.AutoCAD.Internal.Windows;
+using Autodesk.AutoCAD.Customization;
+using Autodesk.AutoCAD.Windows.InfoCenterAcconn;
+using System.Net;
+using Autodesk.AutoCAD.Colors;
 
 namespace SiteCalculations
 {
@@ -32,14 +37,15 @@ namespace SiteCalculations
         string stageBorderLayer = "12_Граница_";
         string siteBorderLayer = "11_Граница_площадки";
         string buildingAreaExLayer = "31_Площадки_проект";
+        string AmenitiesLayerName = "30_Площадки_требуемые";
+        //Parameters_of_dyn_blocks
+        string[] parkingBlockPararmArray = { "Размер", "Тип", "Обычн_МГН", "РасширенноеММ" };
         //Arrays with data for table
         string[] generalParamArray = { "PlotArea", "TotalConstructionArea", "BuildingPartPercent",
-            "TotalApartmentArea", "TotalNumberOfApartments", "TotalResidents", "TotalCommerceArea" };
-        string[] livingReqParamArray = { "TotalAreaReq", "TotalChildAreaReq", "TotalSportAreaReq", "TotalRestAreaReq", 
-            "TotalUtilityAreaReq", "TotalTrashAreaReq", "TotalDogsAreaReq", "TotalGreeneryAreaReq" };
-        string[] livingExParamArray = { "TotalAreaEx", "TotalChildAreaEx", "TotalSportAreaEx", "TotalRestAreaEx",
-            "TotalDogsAreaEx", "TotalTrashAreaEx", "TotalUtilityAreaEx", "TotalGreeneryAreaEx" };
-        string[] socialReqParamArray = { "SchoolsReq", "KindergartensReq", "HospitalsReq" };
+            "TotalApartmentArea", "TotalNumberOfApartments", "TotalResidents", "TotalCommerceArea" };// add Number of floors
+        string[] AmenitiesParamArray = { "TotalArea", "ChildrenArea", "SportArea", "RestArea", 
+            "UtilityArea", "TrashArea", "DogsArea", "GreeneryArea" };
+        string[] socialReqParamArray = { "SchoolsReq", "KindergartensReq", "HospitalsReq" };// remake as a class? worth it?
         string[] socialExParamArray = { "SchoolsEx", "KindergartensEx", "HospitalsEx" };
         string[] parkingParamArray = { "TotalLongParking", "TotalShortParking", "TotalGuestParking" };
         string[] TopOfTheTableArray = { "Имя", "Параметр", "Площадь участка, м2", "Площадь зайтройки, м2", "Процент застройки, %",
@@ -50,9 +56,56 @@ namespace SiteCalculations
         // Table parameters
         double row_height = 8;
         double column_width = 12;
-        public List<ExParametersModel> GetExParameters()
+        public List<ParkingBlockModel> GetExParkingBlocks()
         {
-            List<ExParametersModel> output = new List<ExParametersModel>();
+            List<ParkingBlockModel> output = new List<ParkingBlockModel>();
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                using (DocumentLock acLckDoc = doc.LockDocument())
+                {
+                    var bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead, false) as BlockTable;
+                    var btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForRead, false) as BlockTableRecord;
+                    foreach (ObjectId objectId in btr)
+                    {
+                        if (objectId.ObjectClass == rxClassBlockReference)
+                        {
+                            var br = tr.GetObject(objectId, OpenMode.ForRead) as BlockReference;
+                            try
+                            {
+                                ObjectId oi = br.AttributeCollection[1];
+                                var attRef = tr.GetObject(oi, OpenMode.ForRead) as AttributeReference;
+                                ObjectId oi2= br.AttributeCollection[0];
+                                var attRef2= tr.GetObject(oi2, OpenMode.ForRead) as AttributeReference;
+
+                                if (attRef.Tag == "Этап" && attRef2.Tag == "КОЛ-ВО")
+                                {
+                                    string[] dynBlockPropValues = new string[6];
+                                    var pc = br.DynamicBlockReferencePropertyCollection;
+                                    for (var j = 0; j < pc.Count; j++)
+                                    {
+                                        for (int i = 0; i < parkingBlockPararmArray.Length; i++)
+                                        {
+                                            if (pc[j].PropertyName == parkingBlockPararmArray[i])
+                                            {
+                                                dynBlockPropValues[i] = pc[j].Value.ToString();
+                                            }
+                                        }
+                                    }
+                                    dynBlockPropValues[4] = attRef.TextString;
+                                    dynBlockPropValues[5] = attRef2.TextString;
+                                    output.Add(new ParkingBlockModel(dynBlockPropValues));
+                                }
+                            }
+                            catch { ed.WriteMessage("ded  "); }
+                        }
+                    }
+                }
+            }
+            return output;
+        }
+        public List<AmenitiesModel> GetExAmenities()
+        {
+            List<AmenitiesModel> output = new List<AmenitiesModel>();
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 using (DocumentLock acLckDoc = doc.LockDocument())
@@ -72,7 +125,7 @@ namespace SiteCalculations
                                     {
                                         dynBlockPropValues[i] = pc[i].Value.ToString();
                                     }
-                                output.Add(new ExParametersModel(dynBlockPropValues));
+                                output.Add(new AmenitiesModel(dynBlockPropValues));
                             }
                         }
                     }
@@ -103,7 +156,7 @@ namespace SiteCalculations
                                 {
                                     dynBlockPropValues[i] = pc[i].Value.ToString();
                                 }
-                                output.Add(new ApartmentBuildingSectionModel(dynBlockPropValues));
+                                output.Add(new ApartmentBuildingSectionModel(dynBlockPropValues , GetCenterOfABlock(br)));
                             }
                         }
                     }
@@ -112,7 +165,7 @@ namespace SiteCalculations
             }
             return output;
         }
-        public List<IBaseBuilding> GetBuildings(CityModel city, List<EntityBorderModel> borders, List<ExParametersModel> exParams, List<ParkingModel> parking)
+        public List<IBaseBuilding> GetBuildings(CityModel city, List<EntityBorderModel> borders = null, List<AmenitiesModel> exParams = null, List<ParkingModel> exParking = null, bool onlyGetReqParams = false)
         {
             List<IBaseBuilding> output = new List<IBaseBuilding>();
             using (Transaction tr = db.TransactionManager.StartTransaction())
@@ -126,62 +179,81 @@ namespace SiteCalculations
                         if (objectId.ObjectClass == rxClassBlockReference)
                         {
                             var br = tr.GetObject(objectId, OpenMode.ForRead) as BlockReference;
-                            //Apartment buildings
-                            if (br.Layer == ApartmentsBuildingsLayer && br != null)
+                            Point3d midPoint = GetCenterOfABlock(br);
+                            if (onlyGetReqParams)
                             {
-                                string[] dynBlockPropValues = new string[7];
-                                DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                for (int i = 0; i < 7; i++)
+                                //Apartment buildings
+                                if (br.Layer == ApartmentsBuildingsLayer && br != null)
                                 {
-                                    dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    ed.WriteMessage("block \n");
+                                    string[] dynBlockPropValues = new string[7];
+                                    DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
+                                    for (int i = 0; i < 7; i++)
+                                    {
+                                        dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    }
+                                    output.Add(new ApartmentBuildingModel(city, dynBlockPropValues, midPoint));
                                 }
-                                output.Add(new ApartmentBuildingModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, exParams.FirstOrDefault(c => c.BuildingName == dynBlockPropValues[1]), parking.FirstOrDefault(c => c.Name == dynBlockPropValues[1])));
                             }
-                            //Schools
-                            else if (br.Layer == SchoolBuildingsLayer && br != null)
+                            else
                             {
-                                string[] dynBlockPropValues = new string[6];
-                                DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                for (int i = 0; i < 6; i++)
+                                //Apartment buildings
+                                if (br.Layer == ApartmentsBuildingsLayer && br != null)
                                 {
-                                    dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    string[] dynBlockPropValues = new string[7];
+                                    DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
+                                    for (int i = 0; i < 7; i++)
+                                    {
+                                        dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    }
+                                    output.Add(new ApartmentBuildingModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, exParams.FirstOrDefault(c => c.Name == dynBlockPropValues[1]), exParking.FirstOrDefault(c => c.Name == dynBlockPropValues[1]), midPoint));
                                 }
-                                output.Add(new SchoolModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, parking.FirstOrDefault(c => c.Name == dynBlockPropValues[1])));
-                            }
-                            //Kindergartens
-                            else if (br.Layer == KindergartenBuildingsLayer && br != null)
-                            {
-                                string[] dynBlockPropValues = new string[6];
-                                DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                for (int i = 0; i < 6; i++)
+                                //Schools
+                                else if (br.Layer == SchoolBuildingsLayer && br != null)
                                 {
-                                    dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    string[] dynBlockPropValues = new string[6];
+                                    DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
+                                    for (int i = 0; i < 6; i++)
+                                    {
+                                        dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    }
+                                    output.Add(new SchoolModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, exParking.FirstOrDefault(c => c.Name == dynBlockPropValues[1]), midPoint));
                                 }
-                                output.Add(new KindergartenModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, parking.FirstOrDefault(c => c.Name == dynBlockPropValues[1])));
-                            }
-                            //Hospitals
-                            else if (br.Layer == HospitalBuildingsLayer && br != null)
-                            {
-                                string[] dynBlockPropValues = new string[6];
-                                DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                for (int i = 0; i < 6; i++)
+                                //Kindergartens
+                                else if (br.Layer == KindergartenBuildingsLayer && br != null)
                                 {
-                                    dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    string[] dynBlockPropValues = new string[6];
+                                    DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
+                                    for (int i = 0; i < 6; i++)
+                                    {
+                                        dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    }
+                                    output.Add(new KindergartenModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, exParking.FirstOrDefault(c => c.Name == dynBlockPropValues[1]), midPoint));
                                 }
-                                output.Add(new HospitalModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, parking.FirstOrDefault(c => c.Name == dynBlockPropValues[1])));
-                            }
-                            //Parking
-                            else if (br.Layer == ParkingBuildingsLayer && br != null)
-                            {
-                                string[] dynBlockPropValues = new string[6];
-                                DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                for (int i = 0; i < 6; i++)
+                                //Hospitals
+                                else if (br.Layer == HospitalBuildingsLayer && br != null)
                                 {
-                                    dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    string[] dynBlockPropValues = new string[6];
+                                    DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
+                                    for (int i = 0; i < 6; i++)
+                                    {
+                                        dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    }
+                                    output.Add(new HospitalModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, exParking.FirstOrDefault(c => c.Name == dynBlockPropValues[1]), midPoint));
                                 }
-                                output.Add(new ParkingBuildingModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, parking.FirstOrDefault(c => c.Name == dynBlockPropValues[1])));
+                                //Parking
+                                else if (br.Layer == ParkingBuildingsLayer && br != null)
+                                {
+                                    string[] dynBlockPropValues = new string[6];
+                                    DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
+                                    for (int i = 0; i < 6; i++)
+                                    {
+                                        dynBlockPropValues[i] = pc[i].Value.ToString();
+                                    }
+                                    output.Add(new ParkingBuildingModel(city, dynBlockPropValues, borders.FirstOrDefault(c => c.Name == dynBlockPropValues[1]).Area, exParking.FirstOrDefault(c => c.Name == dynBlockPropValues[1]), midPoint));
+                                }
+                                //Add for Trade centers, office buildings,etc.
                             }
-                            //Add for Trade centers, office buildings,etc.
                         }
                     }
                 }
@@ -236,8 +308,6 @@ namespace SiteCalculations
         }
         public void CreateSiteTable(SiteModel site = null, List<BaseBigAreaModel> stages = null, List<List<IBaseBuilding>> buildingsByStage = null, BaseBigAreaModel stage = null, List<IBaseBuilding> buildings = null)
         {
-            Document doc = Application.DocumentManager.MdiActiveDocument;
-            Database db = doc.Database;
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 using (DocumentLock acLckDoc = doc.LockDocument())
@@ -317,20 +387,23 @@ namespace SiteCalculations
             tb.MergeCells(nameRange);
             tb.Cells[current_row, 0].TextString = GetObjectPropertyByName(obj, "Name").ToString();
             //Getting separate objects
-            ParkingModel parking = GetObjectPropertyByName(obj, "TotalParkingReq") as ParkingModel;
+            ParkingModel parkingReq = GetObjectPropertyByName(obj, "TotalParkingReq") as ParkingModel;
+            ParkingModel parkingEx = GetObjectPropertyByName(obj, "TotalParkingEx") as ParkingModel;
+            AmenitiesModel amenitiesReq = GetObjectPropertyByName(obj, "AmenitiesReq") as AmenitiesModel;
+            AmenitiesModel amenitiesEx = GetObjectPropertyByName(obj, "AmenitiesEx") as AmenitiesModel;
             //for tracking2
             int current_column = starting_column;
             //Adding reneral parameters
             AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, generalParamArray, obj, 0, true);
             //Adding area parameters
-            AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, livingReqParamArray, obj);
-            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, livingExParamArray, obj, 0, true);
+            AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, AmenitiesParamArray, amenitiesReq);
+            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, AmenitiesParamArray, amenitiesEx, 0, true);
             //Adding parking parameters
-            AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, parkingParamArray, parking);
-            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, parkingParamArray, parking, 0, true);
+            AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, parkingParamArray, parkingReq);
+            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, parkingParamArray, parkingEx, 0, true);
             //Adding social parameters
             AddObjectDataToRowFromParameterArray(ref tb, current_row, ref current_column, socialReqParamArray, obj);
-            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, socialReqParamArray, obj, 0, true);
+            AddObjectDataToRowFromParameterArray(ref tb, current_row + 1, ref current_column, socialExParamArray, obj, 0, true);
             current_row += 2;
         }
         //Function adds data from object, parameters are in array
@@ -338,7 +411,7 @@ namespace SiteCalculations
         {
             for (int i = startPositionInArray; i < array.Length; i++)
             {
-                if (obj.GetType().GetProperty(array[i]) != null)
+                if (obj.GetType().GetProperty(array[i]) != null && obj.GetType().GetProperty(array[i]).GetValue(obj, null).ToString() != "0")
                 {
                     tb.Cells[current_row, current_column + i - startPositionInArray].TextString = obj.GetType().GetProperty(array[i]).GetValue(obj, null).ToString();
                 }
@@ -350,6 +423,47 @@ namespace SiteCalculations
             if (ChangeCurrentColumn)
             {
                 current_column += array.Length - startPositionInArray;
+            }
+        }
+        //Create Amenities block
+        public void CreateAmenitiesBlock(AmenitiesModel AmenitiesReq, Point3d midPoint)
+        {
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                using (DocumentLock acLckDoc = doc.LockDocument())
+                {
+                    var bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead, false) as BlockTable;
+                    var btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                    // Create a multiline text object
+                    MText acMText = new MText
+                    {
+                        Color = Color.FromColorIndex(ColorMethod.ByLayer, 256),
+                        Layer = AmenitiesLayerName,
+                        TextHeight = 0.5,
+                        BackgroundFill = true,
+                        Attachment = AttachmentPoint.MiddleCenter,
+                        Location = midPoint,
+                        Width = 8,
+                        Contents = $"Для позиции {AmenitiesReq.Name} требуется:\n Детских площадок: {AmenitiesReq.ChildrenArea}\n Спортивных площадок: {AmenitiesReq.SportArea}\nПлощадок откдыха: {AmenitiesReq.RestArea}\nХозяйственных площадок: {AmenitiesReq.UtilityArea}\nМусорных площадок: {AmenitiesReq.TrashArea}\nПлощадок выгула собак: {AmenitiesReq.DogsArea}\nОбщая площадь площадок: {AmenitiesReq.TotalArea}\nОзеленение: {AmenitiesReq.GreeneryArea}\n"
+                    };
+                    btr.AppendEntity(acMText);
+                    tr.AddNewlyCreatedDBObject(acMText, true);
+                }
+                tr.Commit();
+            }
+        }
+        //Get center of a block
+        public Point3d GetCenterOfABlock(BlockReference bl)
+        {
+            try
+            {
+                Extents3d ext = bl.GeometricExtents;
+                Point3d center = ext.MinPoint + (ext.MaxPoint - ext.MinPoint) / 2.0;
+                return center;
+            }
+            catch
+            {
+                return bl.Position;
             }
         }
         //Sort List<T> generic
@@ -392,6 +506,12 @@ namespace SiteCalculations
                 sortedList[obId].Add(ob);
             }
             return sortedList;
+        }
+        public int DivideStringsGetRooundedInt(string value1, string value2)
+        {
+            double val1 = Convert.ToDouble(value1);
+            double val2 = Convert.ToDouble(value2);
+            return Convert.ToInt32(Math.Round(val1 / val2));
         }
     }
 }

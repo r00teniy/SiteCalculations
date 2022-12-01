@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.AutoCAD.Geometry;
+using System;
 using System.Collections.Generic;
 
 namespace SiteCalculations.Models
@@ -11,112 +12,100 @@ namespace SiteCalculations.Models
         public double TotalConstructionArea { get; private set; }
         public double PlotArea { get; private set; }
         public double BuildingPartPercent { get; private set; }
-        public string Floors { get; private set; }
+        public string NumberOfFloors { get; private set; }
         // Apartment part
         public int TotalResidents { get; private set; }
         public int TotalNumberOfApartments { get; private set; }
         public double TotalApartmentArea { get; private set; }
         // commerce part
         public double TotalCommerceArea { get; private set; }
-        // Requirements part
-        // Areas
-        public double TotalChildAreaReq { get; private set; }
-        public double TotalSportAreaReq { get; private set; }
-        public double TotalRestAreaReq { get; private set; }
-        public double TotalUtilityAreaReq { get; private set; }
-        public double TotalTrashAreaReq { get; private set; }
-        public double TotalDogsAreaReq { get; private set; }
-        public double TotalAreaReq { get; private set; }
-        public double TotalGreeneryAreaReq { get; private set; }
-        // Existing part
-        //Areas
-        public double TotalChildAreaEx { get; private set; }
-        public double TotalSportAreaEx { get; private set; }
-        public double TotalRestAreaEx { get; private set; }
-        public double TotalUtilityAreaEx { get; private set; }
-        public double TotalDogsAreaEx { get; private set; }
-        public double TotalTrashAreaEx { get; private set; }
-        public double TotalAreaEx { get; private set; }
-        public double TotalGreeneryAreaEx { get; private set; }
+        //Amenities
+        public AmenitiesModel AmenitiesReq { get; private set; }
+        public AmenitiesModel AmenitiesEx { get; private set; }
+
         // Parking
         public ParkingModel TotalParkingReq { get; private set; }
         public ParkingModel TotalParkingEx { get; private set; }
+        public Point3d MidPoint { get; private set; }
 
         //Combining building from sections
-        public ApartmentBuildingModel(CityModel city, List<ApartmentBuildingSectionModel> sectionList, double plotArea, ExParametersModel ExParam, ParkingModel exParking)
+        public ApartmentBuildingModel(CityModel city, List<ApartmentBuildingSectionModel> sectionList, double plotArea, AmenitiesModel exParam, ParkingModel exParking)
         {
             StageName = sectionList[0].StageName;
             Name = sectionList[0].Name;
+            MidPoint = sectionList[0].MidPoint;
             foreach (var sec in sectionList)
             {
                 TotalConstructionArea += sec.ConstructionArea;
                 TotalNumberOfApartments += sec.NumberOfApartments;
                 TotalApartmentArea += sec.ApartmentsArea;
                 TotalCommerceArea += sec.CommerceArea;
-                Floors += sec.NumberOfFloors.ToString()+", ";
+                NumberOfFloors += sec.NumberOfFloors.ToString()+", ";
             }
             PlotArea = Math.Round(plotArea, 2);
             TotalResidents = Convert.ToInt32(Math.Floor(TotalApartmentArea / city.SqMPerPerson));
             BuildingPartPercent = Math.Round(100 * TotalConstructionArea / plotArea, 2);
-            // requirements
-            var req = city.AreaReq.CalculateReqArea(TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
-            TotalChildAreaReq = req[0];
-            TotalSportAreaReq = req[1];
-            TotalRestAreaReq = req[2];
-            TotalUtilityAreaReq = req[3]; 
-            TotalTrashAreaReq = req[4];
-            TotalDogsAreaReq = req[5];
-            TotalAreaReq = req[6];
-            TotalGreeneryAreaReq = req[7];
-            // existing
-            TotalChildAreaEx = ExParam.TotalChildAreaEx;
-            TotalSportAreaEx = ExParam.TotalSportAreaEx;
-            TotalRestAreaEx = ExParam.TotalRestAreaEx;
-            TotalUtilityAreaEx = ExParam.TotalUtilityAreaEx;
-            TotalTrashAreaEx = ExParam.TotalTrashAreaEx;
-            TotalDogsAreaEx = ExParam.TotalDogsAreaEx;
-            TotalAreaEx = ExParam.TotalAreaEx;
-            TotalGreeneryAreaEx = ExParam.TotalGreeneryAreaEx;
+            //Amenities
+            AmenitiesReq = city.AreaReq.CalculateReqArea(Name,TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
+            AmenitiesEx = exParam;
             // Parking requires
             TotalParkingReq = city.Parking.CalculateParking(Name, new double[]{ TotalResidents, TotalApartmentArea, TotalNumberOfApartments, TotalCommerceArea, 0, 0, 0 });
-            // existing
             TotalParkingEx = exParking;
         }
-        public ApartmentBuildingModel(CityModel city, string[] buildingParams, double plotArea, ExParametersModel ExParam, ParkingModel exParking)
+        public ApartmentBuildingModel(CityModel city, string[] buildingParams, double plotArea, AmenitiesModel exParam, ParkingModel exParking, Point3d midPoint)
         {
             StageName = buildingParams[0];
             Name = buildingParams[1];
+            MidPoint= midPoint;
             TotalConstructionArea = Convert.ToDouble(buildingParams[2]);
-            Floors = buildingParams[3];
+            NumberOfFloors = buildingParams[3];
             TotalNumberOfApartments = Convert.ToInt32(buildingParams[4]);
             TotalApartmentArea = Convert.ToDouble(buildingParams[5]);
             TotalCommerceArea = Convert.ToDouble(buildingParams[6]);
             PlotArea = plotArea;
             TotalResidents = Convert.ToInt32(Math.Floor(TotalApartmentArea / city.SqMPerPerson));
             BuildingPartPercent = Math.Round(100 * TotalConstructionArea / plotArea, 2);
-            // requirements
-            var req = city.AreaReq.CalculateReqArea(TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
-            TotalChildAreaReq = req[0];
-            TotalSportAreaReq = req[1];
-            TotalRestAreaReq = req[2];
-            TotalUtilityAreaReq = req[3];
-            TotalTrashAreaReq = req[4];
-            TotalDogsAreaReq = req[5];
-            TotalAreaReq = req[6];
-            TotalGreeneryAreaReq = req[7];
-            // existing
-            TotalChildAreaEx = ExParam.TotalChildAreaEx;
-            TotalSportAreaEx = ExParam.TotalSportAreaEx;
-            TotalRestAreaEx = ExParam.TotalRestAreaEx;
-            TotalUtilityAreaEx = ExParam.TotalUtilityAreaEx;
-            TotalTrashAreaEx = ExParam.TotalTrashAreaEx;
-            TotalDogsAreaEx = ExParam.TotalDogsAreaEx;
-            TotalAreaEx = ExParam.TotalAreaEx;
-            TotalGreeneryAreaEx = ExParam.TotalGreeneryAreaEx;
+            //Amenities
+            AmenitiesReq = city.AreaReq.CalculateReqArea(Name, TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
+            AmenitiesEx = exParam;
+            //Parking
+            TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { TotalResidents, TotalApartmentArea, TotalNumberOfApartments, TotalCommerceArea, 0, 0, 0 });
+            TotalParkingEx = exParking;
+        }
+        public ApartmentBuildingModel(CityModel city, string[] buildingParams, Point3d midPoint)
+        {
+            StageName = buildingParams[0];
+            Name = buildingParams[1];
+            MidPoint = midPoint;
+            TotalConstructionArea = Convert.ToDouble(buildingParams[2]);
+            NumberOfFloors = buildingParams[3];
+            TotalNumberOfApartments = Convert.ToInt32(buildingParams[4]);
+            TotalApartmentArea = Convert.ToDouble(buildingParams[5]);
+            TotalCommerceArea = Convert.ToDouble(buildingParams[6]);
+            TotalResidents = Convert.ToInt32(Math.Floor(TotalApartmentArea / city.SqMPerPerson));
+            //Amenities
+            AmenitiesReq = city.AreaReq.CalculateReqArea(Name, TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
+            //Parking
+            TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { TotalResidents, TotalApartmentArea, TotalNumberOfApartments, TotalCommerceArea, 0, 0, 0 });
+        }
+        public ApartmentBuildingModel(CityModel city, List<ApartmentBuildingSectionModel> sectionList)
+        {
+            StageName = sectionList[0].StageName;
+            Name = sectionList[0].Name;
+            MidPoint = sectionList[0].MidPoint;
+            foreach (var sec in sectionList)
+            {
+                TotalConstructionArea += sec.ConstructionArea;
+                TotalNumberOfApartments += sec.NumberOfApartments;
+                TotalApartmentArea += sec.ApartmentsArea;
+                TotalCommerceArea += sec.CommerceArea;
+                NumberOfFloors += sec.NumberOfFloors.ToString() + ", ";
+            }
+            TotalResidents = Convert.ToInt32(Math.Floor(TotalApartmentArea / city.SqMPerPerson));
+            //Amenities
+            AmenitiesReq = city.AreaReq.CalculateReqArea(Name, TotalResidents, TotalApartmentArea, TotalNumberOfApartments);
             // Parking requires
             TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { TotalResidents, TotalApartmentArea, TotalNumberOfApartments, TotalCommerceArea, 0, 0, 0 });
-            // existing
-            TotalParkingEx = exParking;
         }
     }
 }

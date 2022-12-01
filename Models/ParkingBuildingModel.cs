@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Autodesk.AutoCAD.Geometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,8 +19,8 @@ namespace SiteCalculations.Models
         public double CommerceArea { get; private set; }
         public ParkingModel TotalParkingReq { get; private set; }
         public ParkingModel TotalParkingEx { get; private set; }
-
-        public ParkingBuildingModel(CityModel city, string[] parameters, double plotArea, ParkingModel exParking)
+        public Point3d MidPoint { get; private set; }
+        public ParkingBuildingModel(CityModel city, string[] parameters, double plotArea, ParkingModel exParking, Point3d midPoint)
         {
             StageName = parameters[0];
             Name = parameters[1];
@@ -29,6 +31,7 @@ namespace SiteCalculations.Models
             CommerceArea = Convert.ToDouble(parameters[5]);
             TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { 0, 0, 0, CommerceArea, 0, 0, 0});
             TotalParkingEx = exParking;
+            MidPoint = midPoint;
         }
     }
 }

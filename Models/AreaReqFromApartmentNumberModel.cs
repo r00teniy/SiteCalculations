@@ -1,4 +1,6 @@
-﻿namespace SiteCalculations.Models
+﻿using System.Xml.Linq;
+
+namespace SiteCalculations.Models
 {
     public class AreaReqFromApartmentNumberModel : IAreaReq
     {
@@ -11,7 +13,7 @@
         public double TotalReq { get; set; }
         public double GreeneryReq { get; set; }
 
-        public double[] CalculateReqArea(int numberOfPeople, double ApartmentArea, int numberOfApartments)
+        public AmenitiesModel CalculateReqArea(string name, int numberOfPeople, double ApartmentArea, int numberOfApartments)
         {
             double[] values = new double[8];
             values[0] = numberOfApartments * ChildReq;
@@ -22,7 +24,7 @@
             values[5] = numberOfApartments * DogsReq;
             values[6] = numberOfApartments * TotalReq;
             values[7] = numberOfApartments * GreeneryReq;
-            return values;
+            return new AmenitiesModel(name, values);
         }
     }
 }

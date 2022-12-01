@@ -11,35 +11,23 @@ namespace SiteCalculations.Models
             City = city;
             Name = name;
             PartNames = new List<string>();
-            var parkReq = new List<ParkingModel>();
-            var parkEx = new List<ParkingModel>();
+            var parkingReqList = new List<ParkingModel>();
+            var parkingExList = new List<ParkingModel>();
+            var amenitiesReqList = new List<AmenitiesModel>();
+            var amenitiesExList = new List<AmenitiesModel>();
             PlotArea = Math.Round(plotArea,2);
             foreach (var l in list)
             {
                 PartNames.Add(l.Name);
-                parkReq.Add(l.TotalParkingReq);
-                parkEx.Add(l.TotalParkingEx);
+                parkingReqList.Add(l.TotalParkingReq);
+                parkingExList.Add(l.TotalParkingEx);
+                amenitiesReqList.Add(l.AmenitiesReq);
+                amenitiesExList.Add(l.AmenitiesEx);
                 TotalConstructionArea += l.TotalConstructionArea;
                 TotalResidents += l.TotalResidents;
                 TotalNumberOfApartments += l.TotalNumberOfApartments;
                 TotalApartmentArea += l.TotalApartmentArea;
                 TotalCommerceArea += l.TotalCommerceArea;
-                TotalChildAreaReq += l.TotalChildAreaReq;
-                TotalSportAreaReq += l.TotalSportAreaReq;
-                TotalRestAreaReq += l.TotalRestAreaReq;
-                TotalUtilityAreaReq += l.TotalUtilityAreaReq;
-                TotalTrashAreaReq += l.TotalTrashAreaReq;
-                TotalDogsAreaReq += l.TotalDogsAreaReq;
-                TotalAreaReq += l.TotalAreaReq;
-                TotalGreeneryAreaReq += l.TotalGreeneryAreaReq;
-                TotalChildAreaEx += l.TotalChildAreaEx;
-                TotalSportAreaEx += l.TotalSportAreaEx;
-                TotalRestAreaEx += l.TotalRestAreaEx;
-                TotalUtilityAreaEx += l.TotalUtilityAreaEx;
-                TotalDogsAreaEx += l.TotalDogsAreaEx;
-                TotalTrashAreaEx += l.TotalTrashAreaEx;
-                TotalAreaEx += l.TotalAreaEx;
-                TotalGreeneryAreaEx += l.TotalGreeneryAreaEx;
                 SchoolsEx += l.SchoolsEx;
                 KindergartensEx += l.KindergartensEx;
                 HospitalsEx += l.HospitalsEx;
@@ -47,8 +35,10 @@ namespace SiteCalculations.Models
                 KindergartensReq+= l.KindergartensReq;
                 HospitalsReq+= l.HospitalsReq;
             }
-            TotalParkingReq = new ParkingModel(Name, parkReq);
-            TotalParkingEx = new ParkingModel(Name, parkEx);
+            AmenitiesReq = new AmenitiesModel(Name, amenitiesReqList);
+            AmenitiesEx = new AmenitiesModel(Name, amenitiesExList);
+            TotalParkingReq = new ParkingModel(Name, parkingReqList);
+            TotalParkingEx = new ParkingModel(Name, parkingExList);
             BuildingPartPercent = Math.Round(100 * TotalConstructionArea / PlotArea,2);
         }
     }

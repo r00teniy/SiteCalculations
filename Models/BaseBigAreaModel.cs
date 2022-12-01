@@ -13,25 +13,9 @@
         public int TotalNumberOfApartments { get; set; }
         public double TotalApartmentArea { get; set; }
         public double TotalCommerceArea { get; set; }
-        // Requirements part
-        // Areas
-        public double TotalChildAreaReq { get; set; }
-        public double TotalSportAreaReq { get; set; }
-        public double TotalRestAreaReq { get; set; }
-        public double TotalUtilityAreaReq { get; set; }
-        public double TotalTrashAreaReq { get; set; }
-        public double TotalDogsAreaReq { get; set; }
-        public double TotalAreaReq { get; set; }
-        public double TotalGreeneryAreaReq { get; set; }
-        // Existing part
-        public double TotalChildAreaEx { get; set; }
-        public double TotalSportAreaEx { get; set; }
-        public double TotalRestAreaEx { get; set; }
-        public double TotalUtilityAreaEx { get; set; }
-        public double TotalDogsAreaEx { get; set; }
-        public double TotalTrashAreaEx { get; set; }
-        public double TotalAreaEx { get; set; }
-        public double TotalGreeneryAreaEx { get; set; }
+        //Amenities
+        public AmenitiesModel AmenitiesReq { get; set; }
+        public AmenitiesModel AmenitiesEx { get; set; }
         //Social req
         public double SchoolsReq { get; set; }
         public double KindergartensReq { get; set; }

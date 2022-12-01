@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Autodesk.AutoCAD.Geometry;
+using System;
+using System.Net;
 
 namespace SiteCalculations.Models
 {
@@ -13,7 +15,8 @@ namespace SiteCalculations.Models
         public double PlotRequired { get; private set; }
         public ParkingModel TotalParkingReq { get; private set; }
         public ParkingModel TotalParkingEx { get; private set; }
-        public KindergartenModel(CityModel city, string[] parameters, double plotArea, ParkingModel exParking)
+        public Point3d MidPoint { get; private set; }
+        public KindergartenModel(CityModel city, string[] parameters, double plotArea, ParkingModel exParking, Point3d midPoint)
         {
             StageName = parameters[0];
             Name = parameters[1];
@@ -24,6 +27,7 @@ namespace SiteCalculations.Models
             PlotRequired = Convert.ToDouble(parameters[5]);
             TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { 0, 0, 0, 0, 0, NumberOfStudents, 0 });
             TotalParkingEx = exParking;
+            MidPoint = midPoint;
         }
     }
 }

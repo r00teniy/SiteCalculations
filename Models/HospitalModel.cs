@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.AutoCAD.Geometry;
+using System;
 
 namespace SiteCalculations.Models
 {
@@ -13,7 +14,8 @@ namespace SiteCalculations.Models
         public double PlotRequired { get; private set; }
         public ParkingModel TotalParkingReq { get; private set; }
         public ParkingModel TotalParkingEx { get; private set; }
-        public HospitalModel(CityModel city, string[] parameters, double plotArea, ParkingModel exParking)
+        public Point3d MidPoint { get; private set; }
+        public HospitalModel(CityModel city, string[] parameters, double plotArea, ParkingModel exParking, Point3d midPoint)
         {
             StageName = parameters[0];
             Name = parameters[1];
@@ -24,6 +26,7 @@ namespace SiteCalculations.Models
             PlotRequired = Convert.ToDouble(parameters[5]);
             TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { 0, 0, 0, 0, 0, 0, NumberOfPatientsPerDay });
             TotalParkingEx = exParking;
+            MidPoint = midPoint;
         }
     }
 }

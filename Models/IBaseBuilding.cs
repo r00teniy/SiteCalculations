@@ -1,4 +1,6 @@
-﻿namespace SiteCalculations.Models
+﻿using Autodesk.AutoCAD.Geometry;
+
+namespace SiteCalculations.Models
 {
     public interface IBaseBuilding
     {
@@ -8,5 +10,6 @@
         double PlotArea { get; }
         ParkingModel TotalParkingReq { get; }
         ParkingModel TotalParkingEx { get; }
+        Point3d MidPoint { get; }
     }
 }

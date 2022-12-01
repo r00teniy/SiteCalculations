@@ -11,7 +11,7 @@
         public double TotalReq { get; set; }
         public double GreeneryReq { get; set; }
 
-        public double[] CalculateReqArea(int numberOfPeople, double ApartmentArea, int numberOfApartments)
+        public AmenitiesModel CalculateReqArea(string name, int numberOfPeople, double ApartmentArea, int numberOfApartments)
         {
             double[] values = new double[8];
             values[0] = ApartmentArea * ChildReq;
@@ -22,7 +22,7 @@
             values[5] = ApartmentArea * DogsReq;
             values[6] = ApartmentArea * TotalReq;
             values[7] = ApartmentArea * GreeneryReq;
-            return values;
+            return new AmenitiesModel(name, values);
         }
     }
 }
