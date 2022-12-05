@@ -85,6 +85,9 @@
       <HintPath>packages\AutoCAD.NET.24.2.0\lib\net47\AdWindows.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -96,29 +99,43 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CityModelForm.cs">
+    <Compile Include="Forms\AmenitiesModelForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CityModelForm.Designer.cs">
+    <Compile Include="Forms\AmenitiesModelForm.Designer.cs">
+      <DependentUpon>AmenitiesModelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CityModelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CityModelForm.Designer.cs">
       <DependentUpon>CityModelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ParkingModelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ParkingModelForm.Designer.cs">
+      <DependentUpon>ParkingModelForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Functions.cs" />
     <Compile Include="Models\ApartmentBuildingModel.cs" />
     <Compile Include="Models\ApartmentBuildingSectionModel.cs" />
-    <Compile Include="Models\AreaReqFromApartmentAreaModel.cs" />
-    <Compile Include="Models\AreaReqFromApartmentNumberModel.cs" />
-    <Compile Include="Models\AreaReqFromPeopleModel.cs" />
+    <Compile Include="Models\AmenitiesReqModel.cs" />
     <Compile Include="Models\CityModel.cs" />
-    <Compile Include="Models\EntityBorderModel.cs" />
+    <Compile Include="Models\BuildingBorderModel.cs" />
     <Compile Include="Models\HospitalModel.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Models\ParkingBlockModel.cs" />
     <Compile Include="Models\ParkingBuildingModel.cs" />
     <Compile Include="Models\ParkingModel.cs" />
-    <Compile Include="Models\IAreaReq.cs" />
     <Compile Include="Models\IBaseBuilding.cs" />
-    <Compile Include="Models\IParking.cs" />
-    <Compile Include="Models\ParkingFromPeopleModel.cs" />
+    <Compile Include="Models\ParkingReqModel.cs" />
     <Compile Include="Models\BaseBigAreaModel.cs" />
     <Compile Include="Models\KindergartenModel.cs" />
     <Compile Include="Models\SchoolModel.cs" />
@@ -128,9 +145,21 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="CityModelForm.resx">
+    <EmbeddedResource Include="Forms\AmenitiesModelForm.resx">
+      <DependentUpon>AmenitiesModelForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CityModelForm.resx">
       <DependentUpon>CityModelForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ParkingModelForm.resx">
+      <DependentUpon>ParkingModelForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

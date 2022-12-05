@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ColorControl;
+using System;
 using System.Collections.Generic;
 
 namespace SiteCalculations.Models
@@ -15,9 +16,11 @@ namespace SiteCalculations.Models
             var parkingExList = new List<ParkingModel>();
             var amenitiesReqList = new List<AmenitiesModel>();
             var amenitiesExList = new List<AmenitiesModel>();
+            List<string> floors = new List<string>();
             PlotArea = Math.Round(plotArea,2);
             foreach (var l in list)
             {
+                floors.Add(l.NumberOfFloors);
                 PartNames.Add(l.Name);
                 parkingReqList.Add(l.TotalParkingReq);
                 parkingExList.Add(l.TotalParkingEx);
@@ -35,6 +38,8 @@ namespace SiteCalculations.Models
                 KindergartensReq+= l.KindergartensReq;
                 HospitalsReq+= l.HospitalsReq;
             }
+            Functions f = new Functions();
+            NumberOfFloors = f.GetMaxMinFromListOfStrings(floors, '-');
             AmenitiesReq = new AmenitiesModel(Name, amenitiesReqList);
             AmenitiesEx = new AmenitiesModel(Name, amenitiesExList);
             TotalParkingReq = new ParkingModel(Name, parkingReqList);

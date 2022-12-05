@@ -32,7 +32,7 @@
             this.boxName = new System.Windows.Forms.TextBox();
             this.boxLatitude = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.BoxSqm = new System.Windows.Forms.TextBox();
+            this.boxSqm = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.boxSchools = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -42,11 +42,12 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.cbParking = new System.Windows.Forms.ComboBox();
+            this.cbAmenities = new System.Windows.Forms.ComboBox();
             this.createParkingButton = new System.Windows.Forms.Button();
             this.createAmenitiesButton = new System.Windows.Forms.Button();
             this.createCityButton = new System.Windows.Forms.Button();
+            this.errorLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -81,12 +82,12 @@
             this.label2.TabIndex = 2;
             this.label2.Text = "Широта";
             // 
-            // BoxSqm
+            // boxSqm
             // 
-            this.BoxSqm.Location = new System.Drawing.Point(204, 62);
-            this.BoxSqm.Name = "BoxSqm";
-            this.BoxSqm.Size = new System.Drawing.Size(100, 20);
-            this.BoxSqm.TabIndex = 5;
+            this.boxSqm.Location = new System.Drawing.Point(204, 62);
+            this.boxSqm.Name = "boxSqm";
+            this.boxSqm.Size = new System.Drawing.Size(100, 20);
+            this.boxSqm.TabIndex = 5;
             // 
             // label3
             // 
@@ -163,21 +164,21 @@
             this.label8.TabIndex = 12;
             this.label8.Text = "Парковки";
             // 
-            // comboBox1
+            // cbParking
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(397, 9);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(201, 21);
-            this.comboBox1.TabIndex = 14;
+            this.cbParking.FormattingEnabled = true;
+            this.cbParking.Location = new System.Drawing.Point(397, 9);
+            this.cbParking.Name = "cbParking";
+            this.cbParking.Size = new System.Drawing.Size(201, 21);
+            this.cbParking.TabIndex = 14;
             // 
-            // comboBox2
+            // cbAmenities
             // 
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(397, 87);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(201, 21);
-            this.comboBox2.TabIndex = 15;
+            this.cbAmenities.FormattingEnabled = true;
+            this.cbAmenities.Location = new System.Drawing.Point(397, 87);
+            this.cbAmenities.Name = "cbAmenities";
+            this.cbAmenities.Size = new System.Drawing.Size(201, 21);
+            this.cbAmenities.TabIndex = 15;
             // 
             // createParkingButton
             // 
@@ -187,6 +188,7 @@
             this.createParkingButton.TabIndex = 16;
             this.createParkingButton.Text = "Создать параметры парковок";
             this.createParkingButton.UseVisualStyleBackColor = true;
+            this.createParkingButton.Click += new System.EventHandler(this.createParkingButton_Click);
             // 
             // createAmenitiesButton
             // 
@@ -196,6 +198,7 @@
             this.createAmenitiesButton.TabIndex = 17;
             this.createAmenitiesButton.Text = "Создать параметры площадок";
             this.createAmenitiesButton.UseVisualStyleBackColor = true;
+            this.createAmenitiesButton.Click += new System.EventHandler(this.createAmenitiesButton_Click);
             // 
             // createCityButton
             // 
@@ -205,17 +208,30 @@
             this.createCityButton.TabIndex = 18;
             this.createCityButton.Text = "Создать город";
             this.createCityButton.UseVisualStyleBackColor = true;
+            this.createCityButton.Click += new System.EventHandler(this.createCityButton_Click);
+            // 
+            // errorLabel
+            // 
+            this.errorLabel.AutoSize = true;
+            this.errorLabel.ForeColor = System.Drawing.Color.Red;
+            this.errorLabel.Location = new System.Drawing.Point(66, 183);
+            this.errorLabel.Name = "errorLabel";
+            this.errorLabel.Size = new System.Drawing.Size(180, 13);
+            this.errorLabel.TabIndex = 19;
+            this.errorLabel.Text = "Ошибка! Необходимо ввести имя.";
+            this.errorLabel.Visible = false;
             // 
             // CityModelForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(606, 214);
+            this.Controls.Add(this.errorLabel);
             this.Controls.Add(this.createCityButton);
             this.Controls.Add(this.createAmenitiesButton);
             this.Controls.Add(this.createParkingButton);
-            this.Controls.Add(this.comboBox2);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.cbAmenities);
+            this.Controls.Add(this.cbParking);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.boxHospitals);
@@ -224,7 +240,7 @@
             this.Controls.Add(this.label5);
             this.Controls.Add(this.boxSchools);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.BoxSqm);
+            this.Controls.Add(this.boxSqm);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.boxLatitude);
             this.Controls.Add(this.label2);
@@ -233,7 +249,6 @@
             this.Name = "CityModelForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Создание модели города";
-            this.TopMost = true;
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -245,7 +260,7 @@
         private System.Windows.Forms.TextBox boxName;
         private System.Windows.Forms.TextBox boxLatitude;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox BoxSqm;
+        private System.Windows.Forms.TextBox boxSqm;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox boxSchools;
         private System.Windows.Forms.Label label4;
@@ -255,10 +270,11 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Button createParkingButton;
         private System.Windows.Forms.Button createAmenitiesButton;
         private System.Windows.Forms.Button createCityButton;
+        public System.Windows.Forms.ComboBox cbParking;
+        public System.Windows.Forms.ComboBox cbAmenities;
+        private System.Windows.Forms.Label errorLabel;
     }
 }

@@ -17,12 +17,14 @@ namespace SiteCalculations.Models
             var amenitiesReqList = new List<AmenitiesModel>();
             var amenitiesExList = new List<AmenitiesModel>();
             PlotArea = Math.Round(plotArea,2);
+            List<string> floors= new List<string>();
             foreach (var bd in buildingsList)
             {
                 Buildings.Add(bd.Name);
                 TotalConstructionArea += bd.TotalConstructionArea;
                 parkingReq.Add(bd.TotalParkingReq);
                 parkingEx.Add(bd.TotalParkingEx);
+                floors.Add(bd.NumberOfFloors);
                 // for apartmentbuilding
                 if (bd is ApartmentBuildingModel mod)
                 {
@@ -46,6 +48,8 @@ namespace SiteCalculations.Models
                     HospitalsEx += hm.NumberOfPatientsPerDay;
                 }
             }
+            Functions f = new Functions();
+            NumberOfFloors = f.GetMaxMinFromListOfStrings(floors, ',');
             AmenitiesReq = new AmenitiesModel(Name, amenitiesReqList);
             AmenitiesEx = new AmenitiesModel(Name, amenitiesExList);
             TotalParkingReq = new ParkingModel(Name, parkingReq);
