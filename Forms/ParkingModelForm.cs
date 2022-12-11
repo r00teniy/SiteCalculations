@@ -22,7 +22,7 @@ namespace SiteCalculations.Forms
         }
         private void createParkingButton_Click(object sender, EventArgs e)
         {
-            string[] values = new string[11];
+            string[] values = new string[15];
             switch (cbLong.Text)
             {
                 case "человека":
@@ -51,7 +51,11 @@ namespace SiteCalculations.Forms
             values[7] = bSchool.Text;
             values[8] = bKindergarten.Text;
             values[9] = bHospital.Text;
-            values[10] = bName.Text;
+            values[10] = bSport.Text;
+            values[11] = bFastFood.Text;
+            values[12] = bOffice.Text;
+            values[13] = bStore.Text;
+            values[14] = bName.Text;
             if (bName.Text == "")
             {
                 errorLabel.Visible = true;

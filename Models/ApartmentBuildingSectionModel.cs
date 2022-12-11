@@ -13,6 +13,8 @@ namespace SiteCalculations.Models
         public double ConstructionArea { get; set; }
         public double ApartmentsArea { get; set; }
         public double CommerceArea { get; set; }
+        public double OfficeArea { get; set; }
+        public double StoreArea { get; set; }
         public int NumberOfApartments { get; set; }
         public Point3d MidPoint { get; private set; }
 
@@ -26,6 +28,8 @@ namespace SiteCalculations.Models
             ConstructionArea = Convert.ToDouble(parameters[5]);
             ApartmentsArea = Convert.ToDouble(parameters[6]);
             CommerceArea = Convert.ToDouble(parameters[7]);
+            OfficeArea= Convert.ToDouble(parameters[8]);
+            StoreArea= Convert.ToDouble(parameters[9]);
             MidPoint= midPoint;
         }
     }

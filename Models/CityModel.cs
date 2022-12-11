@@ -12,8 +12,10 @@ namespace SiteCalculations.Models
         public double SchoolsReq { get; set; }
         public double KindergartensReq { get; set; }
         public double HospitalsReq { get; set; }
-
-        public CityModel(string cityName, double cityLatitude, double sqMPerPerson, double schoolsReq, double kindergartensReq, double hospitalsReq, ParkingReqModel parking, AmenitiesReqModel amenitiesReq)
+        public double ParksReq { get; set; }
+        public double SportFieldsReq { get; set; }
+        public double SportBuildingsReq { get; set; }
+        public CityModel(string cityName, double cityLatitude, double sqMPerPerson, double schoolsReq, double kindergartensReq, double hospitalsReq, double sportBuildingsReq, double sportFieldsReq, double parksReq,  ParkingReqModel parking, AmenitiesReqModel amenitiesReq)
         {
             CityName = cityName;
             CityLatitude = cityLatitude;
@@ -23,6 +25,9 @@ namespace SiteCalculations.Models
             HospitalsReq = hospitalsReq;
             SchoolsReq = schoolsReq;
             KindergartensReq = kindergartensReq;
+            SportBuildingsReq= sportBuildingsReq;
+            SportFieldsReq= sportFieldsReq;
+            ParksReq = parksReq;
         }
         [JsonConstructor]
         public CityModel()

@@ -28,8 +28,14 @@ namespace SiteCalculations.Models
                 // for apartmentbuilding
                 if (bd is ApartmentBuildingModel mod)
                 {
-                    amenitiesReqList.Add(mod.AmenitiesReq);
-                    amenitiesExList.Add(mod.AmenitiesEx);
+                    if (mod.AmenitiesReq != null)
+                    {
+                        amenitiesReqList.Add(mod.AmenitiesReq);
+                    }
+                    if (mod.AmenitiesEx != null)
+                    {
+                        amenitiesExList.Add(mod.AmenitiesEx);
+                    }
                     TotalResidents += mod.TotalResidents;
                     TotalNumberOfApartments += mod.TotalNumberOfApartments;
                     TotalApartmentArea += mod.TotalApartmentArea;

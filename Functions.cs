@@ -13,6 +13,7 @@ using Autodesk.AutoCAD.Colors;
 using AcBr = Autodesk.AutoCAD.BoundaryRepresentation;
 using Newtonsoft.Json;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace SiteCalculations
 {
@@ -36,6 +37,7 @@ namespace SiteCalculations
         public static string stageBorderLayer = "12_Граница_";
         public static string siteBorderLayer = "11_Граница_площадки";
         public static string plotNumbersLayer = "10_Номера_участков";
+        public string parkTableStyleName = "ГП Таблица паркомест";
         string buildingAreaExLayer = "31_Площадки_проект";
         string amenitiesLayerName = "30_Площадки_требуемые";
         public static List<ParkingReqModel> parkingCalcTypeList = new List<ParkingReqModel>();
@@ -44,6 +46,7 @@ namespace SiteCalculations
         //Parameters_of_dyn_blocks
         string[] parkingBlockPararmArray = { "Размер", "Тип", "Обычн_МГН", "РасширенноеММ" };
         //Arrays with data for table
+        string[] parkingTypes = { "Постоянные", "Временные", "Гостевые", "всего", "Расширенные" };
         string[] generalParamArray = { "PlotArea", "TotalConstructionArea", "BuildingPartPercent", "NumberOfFloors",
             "TotalApartmentArea", "TotalNumberOfApartments", "TotalResidents", "TotalCommerceArea" };// TODO: add Number of floors
         string[] AmenitiesParamArrayReq = { "AmenitiesReq.TotalArea", "AmenitiesReq.ChildrenArea", "AmenitiesReq.SportArea", "AmenitiesReq.RestArea",
@@ -62,6 +65,165 @@ namespace SiteCalculations
         // Table parameters
         double row_height = 8;
         double column_width = 12;
+        //Functions for parking table
+        //Get list of all buildings for table
+        public List<string> GetSortedListOfParameterValues<T>(List<T> list, string paramName)
+        {
+            var output = new List<string>();
+            //Adding all unique values to a list
+            foreach (var block in list)
+            {
+                if (!output.Contains(GetObjectPropertyByName(block, paramName).ToString()))
+                {
+                    output.Add(GetObjectPropertyByName(block, paramName).ToString());
+                }
+            }
+            //sorting
+            try
+            {
+                int num = Convert.ToInt32(Regex.Match(output[0], @"\d+").Value);
+                return SortListOfStringByNumbersInIt(output);
+            }
+            catch
+            {
+                output.Sort();
+                return output;
+            }    
+        }
+        public string[] CreateLineForParkingTable(List<ParkingBlockModel> parkingBlocks, List<string> names, string plotNumber, List<BuildingBorderModel> borders, bool isParkingBuilding = false)
+        {
+            string[] output = new string[names.Count*5+3];
+            int[] parkingNumbers = new int[names.Count * 5];
+            output[0] = plotNumber;
+            output[1] = GetOnePropetyFromListOfObjectsBySecondPropertyValue(borders, "Name", "PlotNumber", plotNumber).ToString();
+            //creating array for this plot
+            foreach (var park in parkingBlocks)
+            {
+                if (park.PlotNumber == plotNumber)
+                {
+                    for (int i = 0; i < names.Count; i++)
+                    {
+                        if (park.ParkingIsForBuildingName == names[i])
+                        {
+                            switch (park.Type)
+                            {
+                                case "Long":
+                                    parkingNumbers[i*5] += park.NumberOfParkings;
+                                    break;
+                                case "Short":
+                                    parkingNumbers[i * 5 + 1] += park.NumberOfParkings;
+                                    if (park.IsForDisabled)
+                                    {
+                                        parkingNumbers[i * 5 + 3] += park.NumberOfParkings;
+                                    }
+                                    if (park.IsForDisabledExtended)
+                                    {
+                                        parkingNumbers[i * 5 + 4] += park.NumberOfParkings;
+                                    }
+                                    break;
+                                case "Guest":
+                                    parkingNumbers[i * 5 + 2] += park.NumberOfParkings;
+                                    if (park.IsForDisabled)
+                                    {
+                                        parkingNumbers[i * 5 + 3] += park.NumberOfParkings;
+                                    }
+                                    if (park.IsForDisabledExtended)
+                                    {
+                                        parkingNumbers[i * 5 + 4] += park.NumberOfParkings;
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (parkingNumbers.Sum() != 0)
+            {
+                //Creating output string array
+                output[output.Length - 1] = parkingNumbers.Sum().ToString();
+                for (int i = 0; i < parkingNumbers.Length; i++)
+                {
+                    output[i + 2] = parkingNumbers[i].ToString();
+                }
+                return output;
+            }
+            else
+            {
+                return null;
+            }
+            
+        }
+        //Generate table.
+        public void CreateParkingTable(List<string[]> list, List<string> buildingNames)
+        {
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                using (DocumentLock acLckDoc = doc.LockDocument())
+                {
+                    var bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead, false) as BlockTable;
+                    var btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                    ObjectId tbSt = new ObjectId();
+                    DBDictionary tsd = (DBDictionary)tr.GetObject(db.TableStyleDictionaryId, OpenMode.ForRead);
+                    foreach (DBDictionaryEntry entry in tsd)
+                    {
+                        var tStyle = (TableStyle)tr.GetObject(entry.Value, OpenMode.ForRead);
+                        if (tStyle.Name == parkTableStyleName)
+                        {
+                            tbSt = entry.Value;
+                        }
+                    }
+                    //Creating table
+                    Table tb = new Table
+                    {
+                        TableStyle = tbSt,
+                        Position = GetInsertionPoint()
+                    };
+                    tb.SetRowHeight(8);
+                    tb.SetColumnWidth(20);
+                    tb.Cells[0, 0].TextString = "Распределение парковок по домам и участкам";
+                    tb.InsertRows(1, 10, 1);
+                    tb.Rows[0].Style = "Название";
+                    tb.InsertRows(2, 30, 1);
+                    tb.InsertColumns(1, 20, 1);
+                    tb.InsertColumns(2, 8, list[0].Length - 2);
+                    tb.Rows[2].Style = "Заголовок";
+                    for (int i = 0; i < buildingNames.Count; i++)
+                    {
+                        CellRange nameRange = CellRange.Create(tb, 1, 2+i*5, 1, 2+i*5+4);
+                        tb.MergeCells(nameRange);
+                    }
+                    tb.Cells[1,0].TextString = "Позиция";
+                    tb.Cells[2, 0].TextString = "№Участка";
+                    tb.Cells[2, 1].TextString = "Дома на участке";
+                    tb.Cells[2, list[0].Length - 1].TextString = "Итого";
+                    tb.Cells[2, list[0].Length - 1].Contents[0].Rotation = Math.PI / 2;
+                    for (var i = 0;i  < buildingNames.Count;i++)
+                    {
+                        tb.Cells[1, 2+i*5].TextString = buildingNames[i];
+                        for (int j = 0; j < 5; j++)
+                        {
+                            tb.Cells[2, 2+i*5+j].TextString = parkingTypes[j];
+                            tb.Cells[2, 2 + i * 5 + j].Contents[0].Rotation = Math.PI/2;
+                        }
+                    }
+                    var currentRow = 2;
+                    foreach (var arr in list)
+                    {
+                        tb.InsertRows(currentRow+1, 8, 1);
+                        currentRow++;
+                        for (int i = 0; i < arr.Length; i++)
+                        {
+                            tb.Cells[currentRow, i].TextString = arr[i];
+                        }
+                    }
+                    tb.GenerateLayout();
+                    btr.AppendEntity(tb);
+                    tr.AddNewlyCreatedDBObject(tb, true);
+                }
+                tr.Commit();
+            }
+        }
+        //Function that creates parking models for buildings for existing parking
         public List<ParkingModel> CreateExParking(List<ParkingBlockModel> blockList, List<BuildingBorderModel> borders)
         {
             List<ParkingModel> output= new List<ParkingModel>();
@@ -73,7 +235,8 @@ namespace SiteCalculations
             }
             return output;
         }
-        public List<ParkingBlockModel> GetExParkingBlocks()
+        //Function that creates parking block models for existing parking parts
+        public List<ParkingBlockModel> GetExParkingBlocks(List<BuildingBorderModel> borders)
         {
             List<ParkingBlockModel> output = new List<ParkingBlockModel>();
             using (Transaction tr = db.TransactionManager.StartTransaction())
@@ -113,9 +276,20 @@ namespace SiteCalculations
                                     dynBlockPropValues[6] = attRef3.TextString;
                                     output.Add(new ParkingBlockModel(dynBlockPropValues));
                                 }
-                                //Add something for parkingBuildings
                             }
                             catch { }
+                            if (br.Layer == parkingBuildingsLayer && br != null)
+                            {
+                                var pc = br.DynamicBlockReferencePropertyCollection;
+                                var plotNumbner = GetOnePropetyFromListOfObjectsBySecondPropertyValue(borders, "PlotNumber", "Name", pc[1].Value.ToString()).ToString();
+                                for (var i = 8; i < 22; i += 2)
+                                {
+                                    if (Convert.ToInt32(pc[i + 1].Value) != 0)
+                                    {
+                                        output.Add(new ParkingBlockModel(Convert.ToInt32(pc[i + 1].Value), pc[i].Value.ToString(), plotNumbner));
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -169,9 +343,9 @@ namespace SiteCalculations
                             var br = tr.GetObject(objectId, OpenMode.ForRead) as BlockReference;
                             if (br.Layer == sectionsLayer && br != null)
                             {
-                                string[] dynBlockPropValues = new string[8];
+                                string[] dynBlockPropValues = new string[10];
                                 DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                for (int i = 0; i < 8; i++) // we only need first 8 properties
+                                for (int i = 0; i < 10; i++) // we only need first 10 properties
                                 {
                                     dynBlockPropValues[i] = pc[i].Value.ToString();
                                 }
@@ -204,9 +378,9 @@ namespace SiteCalculations
                                 //Apartment buildings
                                 if (br.Layer == apartmentsBuildingsLayer && br != null)
                                 {
-                                    string[] dynBlockPropValues = new string[7];
+                                    string[] dynBlockPropValues = new string[9];
                                     DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                    for (int i = 0; i < 7; i++)
+                                    for (int i = 0; i < dynBlockPropValues.Length; i++)
                                     {
                                         dynBlockPropValues[i] = pc[i].Value.ToString();
                                     }
@@ -218,9 +392,9 @@ namespace SiteCalculations
                                 //Apartment buildings
                                 if (br.Layer == apartmentsBuildingsLayer && br != null)
                                 {
-                                    string[] dynBlockPropValues = new string[7];
+                                    string[] dynBlockPropValues = new string[9];
                                     DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                    for (int i = 0; i < 7; i++)
+                                    for (int i = 0; i < dynBlockPropValues.Length; i++)
                                     {
                                         dynBlockPropValues[i] = pc[i].Value.ToString();
                                     }
@@ -262,9 +436,9 @@ namespace SiteCalculations
                                 //Parking
                                 else if (br.Layer == parkingBuildingsLayer && br != null)
                                 {
-                                    string[] dynBlockPropValues = new string[6];
+                                    string[] dynBlockPropValues = new string[8];
                                     DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
-                                    for (int i = 0; i < 6; i++)
+                                    for (int i = 0; i < 8; i++)
                                     {
                                         dynBlockPropValues[i] = pc[i].Value.ToString();
                                     }
@@ -279,6 +453,7 @@ namespace SiteCalculations
             }
             return output;
         }
+        //Function to get all informations on borders needed for model
         public List<BuildingBorderModel> GetBorders(string siteName)
         {
             List<BuildingBorderModel> output = new List<BuildingBorderModel>();
@@ -549,8 +724,8 @@ namespace SiteCalculations
                 current_column += array.Length - startPositionInArray;
             }
         }
-        //Create Amenities block
-        public void CreateAmenitiesBlock(AmenitiesModel AmenitiesReq, Point3d midPoint)
+        //Create Amenities required text
+        public void CreateAmenitiesReqText(AmenitiesModel AmenitiesReq, Point3d midPoint)
         {
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -569,6 +744,34 @@ namespace SiteCalculations
                         Location = midPoint,
                         Width = 8,
                         Contents = $"Для позиции {AmenitiesReq.Name} требуется:\n Детских площадок: {AmenitiesReq.ChildrenArea}\n Спортивных площадок: {AmenitiesReq.SportArea}\nПлощадок откдыха: {AmenitiesReq.RestArea}\nХозяйственных площадок: {AmenitiesReq.UtilityArea}\nМусорных площадок: {AmenitiesReq.TrashArea}\nПлощадок выгула собак: {AmenitiesReq.DogsArea}\nОбщая площадь площадок: {AmenitiesReq.TotalArea}\nОзеленение: {AmenitiesReq.GreeneryArea}\n"
+                    };
+                    btr.AppendEntity(acMText);
+                    tr.AddNewlyCreatedDBObject(acMText, true);
+                }
+                tr.Commit();
+            }
+        }
+        //Create Parking required text
+        public void CreateParkingReqText(ParkingModel parkingReq, Point3d midPoint)
+        {
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                using (DocumentLock acLckDoc = doc.LockDocument())
+                {
+                    var bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead, false) as BlockTable;
+                    var btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                    // Create a multiline text object
+                    var midPointRight = new Point3d(midPoint.X + 8, midPoint.Y, midPoint.Z);
+                    MText acMText = new MText
+                    {
+                        Color = Color.FromColorIndex(ColorMethod.ByLayer, 256),
+                        Layer = amenitiesLayerName,
+                        TextHeight = 0.5,
+                        BackgroundFill = true,
+                        Attachment = AttachmentPoint.MiddleCenter,
+                        Location = midPointRight,
+                        Width = 8,
+                        Contents = $"Для позиции {parkingReq.Name} требуется:\n Постоянных м/мест: {parkingReq.TotalLongParking}\n Гостевых м/мест: {parkingReq.TotalGuestParking}\n Временных м/мест: {parkingReq.TotalShortParking}\nв том числе:\nм- /мест для ММГН:: {parkingReq.TotalDisabledParking }\nиз которых расширенных: {parkingReq.TotalDisabledBigParking}\n"
                     };
                     btr.AppendEntity(acMText);
                     tr.AddNewlyCreatedDBObject(acMText, true);
@@ -729,5 +932,9 @@ namespace SiteCalculations
                 serializer.Serialize(file, list);
             }
         }
-    }
+        public List<string> SortListOfStringByNumbersInIt(List<string> list)
+        {
+            return list.OrderBy(s => int.Parse(Regex.Match(s, @"\d+").Value)).ToList();
+        }
+}
 }

@@ -10,22 +10,12 @@ namespace SiteCalculations.Models
         public int TotalLongParking { get; private set; }
         public int TotalShortParking { get; private set; }
         public int TotalGuestParking { get; private set; }
-        public int ShortDisabledNormal { get; private set; }
+        public int TotalDisabledParking { get { return ShortDisabled + GuestDisabled; } }
+        public int TotalDisabledBigParking { get { return ShortDisabledBig + GuestDisabledBig; } }
+        public int ShortDisabled { get; private set; }
         public int ShortDisabledBig { get; private set; }
-        public int GuestDisabledNormal { get; private set; }
+        public int GuestDisabled { get; private set; }
         public int GuestDisabledBig { get; private set; }
-
-        public ParkingModel(string name, int[] parking)
-        {
-            Name = name;
-            TotalLongParking = parking[0];
-            TotalShortParking = parking[1];
-            TotalGuestParking = parking[2];
-            ShortDisabledNormal = parking[3];
-            ShortDisabledBig = parking[4];
-            GuestDisabledNormal = parking[5];
-            GuestDisabledBig = parking[6];
-        }
         public ParkingModel(List<ParkingBlockModel> list, BuildingBorderModel border)
         {
             Name = border.Name;
@@ -43,20 +33,18 @@ namespace SiteCalculations.Models
                             TotalShortParking += item.NumberOfParkings;
                             if (item.IsForDisabled == true)
                             {
+                                ShortDisabled += item.NumberOfParkings;
                                 if (item.IsForDisabledExtended == true)
                                 { ShortDisabledBig += item.NumberOfParkings; }
-                                else
-                                { ShortDisabledNormal += item.NumberOfParkings; }
                             }
                             break;
                         case "Guest":
                             TotalGuestParking += item.NumberOfParkings;
                             if (item.IsForDisabled == true)
                             {
+                                GuestDisabled += item.NumberOfParkings;
                                 if (item.IsForDisabledExtended == true)
                                 { GuestDisabledBig += item.NumberOfParkings; }
-                                else
-                                { GuestDisabledNormal += item.NumberOfParkings; }
                             }
                             break;
                     }
@@ -73,9 +61,9 @@ namespace SiteCalculations.Models
                     TotalLongParking += par.TotalLongParking;
                     TotalShortParking += par.TotalShortParking;
                     TotalGuestParking += par.TotalGuestParking;
-                    ShortDisabledNormal += par.ShortDisabledNormal;
+                    ShortDisabled += par.ShortDisabled;
                     ShortDisabledBig += par.ShortDisabledBig;
-                    GuestDisabledNormal += par.GuestDisabledNormal;
+                    GuestDisabled += par.GuestDisabled;
                     GuestDisabledBig += par.GuestDisabledBig;
                 }
             }
@@ -87,9 +75,9 @@ namespace SiteCalculations.Models
             TotalLongParking = parkLong;
             TotalShortParking = parkShort;
             TotalGuestParking = parkGuest;
-            ShortDisabledNormal = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(parkShort) / 10));
+            ShortDisabled = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(parkShort) / 10));
             ShortDisabledBig = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(parkShort) / 20));
-            GuestDisabledNormal = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(parkGuest) / 10));
+            GuestDisabled = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(parkGuest) / 10));
             GuestDisabledBig = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(parkGuest) / 20));
         }
     }

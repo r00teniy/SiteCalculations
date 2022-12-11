@@ -7,10 +7,11 @@ namespace SiteCalculations.Models
         public int NumberOfParkings { get; private set; }
         public string ParkingIsForBuildingName { get; private set; }
         public string Type { get; private set; }
-        public string Size { get; private set; }
-        public bool IsForDisabled { get; private set; }
-        public bool IsForDisabledExtended { get; private set; }
+        public string Size { get; private set; } = "2.5х5.3";
+        public bool IsForDisabled { get; private set; } = false;
+        public bool IsForDisabledExtended { get; private set; } = false;
         public string PlotNumber { get; private set; }
+        public bool IsInBuilding { get; private set; } = false;
         public ParkingBlockModel(string[] parkParams)
         {
             NumberOfParkings = Convert.ToInt32(parkParams[5]);
@@ -36,8 +37,15 @@ namespace SiteCalculations.Models
                 case "Гостевое":
                     Type = "Guest";
                     break;
-
             }
+        }
+        public ParkingBlockModel(int numberOfParkings, string parkingIsForBuildingName, string plotNumber)
+        {
+            NumberOfParkings = numberOfParkings;
+            ParkingIsForBuildingName = parkingIsForBuildingName;
+            Type = "Long";
+            IsInBuilding = true;
+            PlotNumber = plotNumber;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using SiteCalculations.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace SiteCalculations.Forms
@@ -19,7 +20,7 @@ namespace SiteCalculations.Forms
                 CityModel city = f.SearchByPropNameAndValue(Functions.cityCalcTypeList, "CityName", cbCity.SelectedItem.ToString());
                 List<BuildingBorderModel> borders = f.GetBorders(bName.Text);
                 List<AmenitiesModel> exAmenities = f.GetExAmenities();
-                List<ParkingBlockModel> parkingBlocks = f.GetExParkingBlocks();
+                List<ParkingBlockModel> parkingBlocks = f.GetExParkingBlocks(borders);
                 //Creating parking models
                 List<ParkingModel> exParking = f.CreateExParking(parkingBlocks, borders);
                 //getting separate building
@@ -47,6 +48,15 @@ namespace SiteCalculations.Forms
                 List<BaseBigAreaModel> sortedStages = f.Sort_List_By_PropertyName_Generic("Ascending", "Name", stages);
                 //Creating Site
                 SiteModel site = new SiteModel(city, bName.Text, f.SearchByPropNameAndValue(borders, "Name", bName.Text).Area, sortedStages);
+                //Data for parking Table
+                var plotNumbers = f.GetSortedListOfParameterValues(sortedBuildings, "PlotNumber");
+                //var buildingNames = f.GetSortedListOfParameterValues(sortedBuildings, "Name"); // Old version
+                //Getting building names with LINQ
+                var buildingNames = 
+                    (from build in sortedBuildings
+                    where !(build is ParkingBuildingModel)
+                    orderby build.Name
+                    select build.Name).ToList();
                 // Generating tables
                 this.Hide();
                 if (rbSite.Checked)
@@ -104,6 +114,13 @@ namespace SiteCalculations.Forms
                     else
                     {
                         errLabel.Text = "парковки находятся в разработке";
+                        List<string[]> parkTableList= new List<string[]>();
+                        foreach (var item in plotNumbers)
+                        {
+                            parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders));
+                        }
+                        parkTableList.RemoveAll(x => x == null);
+                        f.CreateParkingTable(parkTableList, buildingNames);
                     }
                 }
                 this.Show();
@@ -132,8 +149,9 @@ namespace SiteCalculations.Forms
         }
         private void bCreateReq_Click(object sender, EventArgs e)
         {
-            if (cbCity.SelectedItem != null && bName.Text != "")
+            if (cbCity.SelectedItem != null)
             {
+                errLabel.Text = "";
                 var f = new Functions();
                 CityModel city = f.SearchByPropNameAndValue(Functions.cityCalcTypeList, "CityName", cbCity.SelectedItem.ToString());
                 //Getting separate buildings
@@ -150,9 +168,14 @@ namespace SiteCalculations.Forms
                 {
                     if (item is ApartmentBuildingModel mod)
                     {
-                        f.CreateAmenitiesBlock(mod.AmenitiesReq, mod.MidPoint);
+                        f.CreateAmenitiesReqText(mod.AmenitiesReq, mod.MidPoint);
+                        f.CreateParkingReqText(mod.TotalParkingReq, mod.MidPoint);
                     }
                 }
+            }
+            else
+            {
+                errLabel.Text = "Выберите город";
             }
         }
 

@@ -26,7 +26,7 @@ namespace SiteCalculations.Models
             PlotArea = Math.Round(plot.Area, 2);
             PlotNumber = plot.PlotNumber;
             PlotRequired = Convert.ToDouble(parameters[5]);
-            TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { 0, 0, 0, 0, 0, 0, NumberOfPatientsPerDay });
+            TotalParkingReq = city.Parking.CalculateParking(Name, new double[] { 0, 0, 0, 0, 0, 0, 0, 0,NumberOfPatientsPerDay, 0, 0 });
             TotalParkingEx = exParking;
             MidPoint = midPoint;
         }

@@ -48,6 +48,16 @@
             this.createAmenitiesButton = new System.Windows.Forms.Button();
             this.createCityButton = new System.Windows.Forms.Button();
             this.errorLabel = new System.Windows.Forms.Label();
+            this.boxSportBuildings = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.boxSportFields = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.boxParks = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.bDeleteParking = new System.Windows.Forms.Button();
+            this.bDeleteAmenities = new System.Windows.Forms.Button();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -94,9 +104,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 65);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(86, 13);
+            this.label3.Size = new System.Drawing.Size(138, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "м2 на человека";
+            this.label3.Text = "м2 квартиры на человека";
             // 
             // boxSchools
             // 
@@ -149,60 +159,60 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(321, 91);
+            this.label7.Location = new System.Drawing.Point(317, 143);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(60, 13);
+            this.label7.Size = new System.Drawing.Size(163, 13);
             this.label7.TabIndex = 13;
-            this.label7.Text = "Площадки";
+            this.label7.Text = "Параметры расчета площадок";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(324, 13);
+            this.label8.Location = new System.Drawing.Point(317, 91);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(57, 13);
+            this.label8.Size = new System.Drawing.Size(160, 13);
             this.label8.TabIndex = 12;
-            this.label8.Text = "Парковки";
+            this.label8.Text = "Параметры расчета парковок";
             // 
             // cbParking
             // 
             this.cbParking.FormattingEnabled = true;
-            this.cbParking.Location = new System.Drawing.Point(397, 9);
+            this.cbParking.Location = new System.Drawing.Point(484, 87);
             this.cbParking.Name = "cbParking";
-            this.cbParking.Size = new System.Drawing.Size(201, 21);
+            this.cbParking.Size = new System.Drawing.Size(182, 21);
             this.cbParking.TabIndex = 14;
             // 
             // cbAmenities
             // 
             this.cbAmenities.FormattingEnabled = true;
-            this.cbAmenities.Location = new System.Drawing.Point(397, 87);
+            this.cbAmenities.Location = new System.Drawing.Point(484, 140);
             this.cbAmenities.Name = "cbAmenities";
-            this.cbAmenities.Size = new System.Drawing.Size(201, 21);
+            this.cbAmenities.Size = new System.Drawing.Size(182, 21);
             this.cbAmenities.TabIndex = 15;
             // 
             // createParkingButton
             // 
-            this.createParkingButton.Location = new System.Drawing.Point(397, 46);
+            this.createParkingButton.Location = new System.Drawing.Point(484, 114);
             this.createParkingButton.Name = "createParkingButton";
-            this.createParkingButton.Size = new System.Drawing.Size(201, 19);
+            this.createParkingButton.Size = new System.Drawing.Size(87, 20);
             this.createParkingButton.TabIndex = 16;
-            this.createParkingButton.Text = "Создать параметры парковок";
+            this.createParkingButton.Text = "Создать";
             this.createParkingButton.UseVisualStyleBackColor = true;
             this.createParkingButton.Click += new System.EventHandler(this.createParkingButton_Click);
             // 
             // createAmenitiesButton
             // 
-            this.createAmenitiesButton.Location = new System.Drawing.Point(397, 126);
+            this.createAmenitiesButton.Location = new System.Drawing.Point(484, 167);
             this.createAmenitiesButton.Name = "createAmenitiesButton";
-            this.createAmenitiesButton.Size = new System.Drawing.Size(201, 19);
+            this.createAmenitiesButton.Size = new System.Drawing.Size(87, 20);
             this.createAmenitiesButton.TabIndex = 17;
-            this.createAmenitiesButton.Text = "Создать параметры площадок";
+            this.createAmenitiesButton.Text = "Создать";
             this.createAmenitiesButton.UseVisualStyleBackColor = true;
             this.createAmenitiesButton.Click += new System.EventHandler(this.createAmenitiesButton_Click);
             // 
             // createCityButton
             // 
-            this.createCityButton.Location = new System.Drawing.Point(265, 177);
+            this.createCityButton.Location = new System.Drawing.Point(204, 177);
             this.createCityButton.Name = "createCityButton";
             this.createCityButton.Size = new System.Drawing.Size(100, 25);
             this.createCityButton.TabIndex = 18;
@@ -214,18 +224,113 @@
             // 
             this.errorLabel.AutoSize = true;
             this.errorLabel.ForeColor = System.Drawing.Color.Red;
-            this.errorLabel.Location = new System.Drawing.Point(66, 183);
+            this.errorLabel.Location = new System.Drawing.Point(16, 183);
             this.errorLabel.Name = "errorLabel";
             this.errorLabel.Size = new System.Drawing.Size(180, 13);
             this.errorLabel.TabIndex = 19;
             this.errorLabel.Text = "Ошибка! Необходимо ввести имя.";
             this.errorLabel.Visible = false;
             // 
+            // boxSportBuildings
+            // 
+            this.boxSportBuildings.Location = new System.Drawing.Point(566, 10);
+            this.boxSportBuildings.Name = "boxSportBuildings";
+            this.boxSportBuildings.Size = new System.Drawing.Size(100, 20);
+            this.boxSportBuildings.TabIndex = 21;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(317, 13);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(181, 13);
+            this.label9.TabIndex = 20;
+            this.label9.Text = "площадь спорт. зданий м2 на чел.";
+            // 
+            // boxSportFields
+            // 
+            this.boxSportFields.Location = new System.Drawing.Point(566, 36);
+            this.boxSportFields.Name = "boxSportFields";
+            this.boxSportFields.Size = new System.Drawing.Size(100, 20);
+            this.boxSportFields.TabIndex = 23;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(317, 39);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(248, 13);
+            this.label10.TabIndex = 22;
+            this.label10.Text = "площадь открытых спорт. площадок м2 на чел.";
+            // 
+            // boxParks
+            // 
+            this.boxParks.Location = new System.Drawing.Point(566, 62);
+            this.boxParks.Name = "boxParks";
+            this.boxParks.Size = new System.Drawing.Size(100, 20);
+            this.boxParks.TabIndex = 25;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(317, 65);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(146, 13);
+            this.label11.TabIndex = 24;
+            this.label11.Text = "площадь парков м2 на чел.";
+            // 
+            // bDeleteParking
+            // 
+            this.bDeleteParking.Location = new System.Drawing.Point(579, 114);
+            this.bDeleteParking.Name = "bDeleteParking";
+            this.bDeleteParking.Size = new System.Drawing.Size(87, 20);
+            this.bDeleteParking.TabIndex = 26;
+            this.bDeleteParking.Text = "Удалить";
+            this.bDeleteParking.UseVisualStyleBackColor = true;
+            this.bDeleteParking.Click += new System.EventHandler(this.bDeleteParking_Click);
+            // 
+            // bDeleteAmenities
+            // 
+            this.bDeleteAmenities.Location = new System.Drawing.Point(577, 167);
+            this.bDeleteAmenities.Name = "bDeleteAmenities";
+            this.bDeleteAmenities.Size = new System.Drawing.Size(87, 20);
+            this.bDeleteAmenities.TabIndex = 27;
+            this.bDeleteAmenities.Text = "Удалить";
+            this.bDeleteAmenities.UseVisualStyleBackColor = true;
+            this.bDeleteAmenities.Click += new System.EventHandler(this.bDeleteAmenities_Click);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(318, 117);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(112, 13);
+            this.label12.TabIndex = 12;
+            this.label12.Text = "отдельных объектов";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(318, 171);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(112, 13);
+            this.label13.TabIndex = 28;
+            this.label13.Text = "отдельных объектов";
+            // 
             // CityModelForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(606, 214);
+            this.ClientSize = new System.Drawing.Size(678, 214);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.bDeleteAmenities);
+            this.Controls.Add(this.bDeleteParking);
+            this.Controls.Add(this.boxParks);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.boxSportFields);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.boxSportBuildings);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.errorLabel);
             this.Controls.Add(this.createCityButton);
             this.Controls.Add(this.createAmenitiesButton);
@@ -233,6 +338,7 @@
             this.Controls.Add(this.cbAmenities);
             this.Controls.Add(this.cbParking);
             this.Controls.Add(this.label7);
+            this.Controls.Add(this.label12);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.boxHospitals);
             this.Controls.Add(this.label6);
@@ -276,5 +382,15 @@
         public System.Windows.Forms.ComboBox cbParking;
         public System.Windows.Forms.ComboBox cbAmenities;
         private System.Windows.Forms.Label errorLabel;
+        private System.Windows.Forms.TextBox boxSportBuildings;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox boxSportFields;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox boxParks;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button bDeleteParking;
+        private System.Windows.Forms.Button bDeleteAmenities;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label13;
     }
 }
