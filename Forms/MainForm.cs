@@ -57,6 +57,11 @@ namespace SiteCalculations.Forms
                     where !(build is ParkingBuildingModel)
                     orderby build.Name
                     select build.Name).ToList();
+                var parkReqForTable =
+                    (from build in sortedBuildings
+                     where !(build is ParkingBuildingModel)
+                     orderby build.Name
+                     select build.TotalParkingReq).ToList();
                 // Generating tables
                 this.Hide();
                 if (rbSite.Checked)
@@ -120,7 +125,7 @@ namespace SiteCalculations.Forms
                             parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders));
                         }
                         parkTableList.RemoveAll(x => x == null);
-                        f.CreateParkingTable(parkTableList, buildingNames);
+                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable);
                     }
                 }
                 this.Show();

@@ -154,7 +154,7 @@ namespace SiteCalculations
             
         }
         //Generate table.
-        public void CreateParkingTable(List<string[]> list, List<string> buildingNames)
+        public void CreateParkingTable(List<string[]> list, List<string> buildingNames, List<ParkingModel> parkingReq)
         {
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -172,6 +172,27 @@ namespace SiteCalculations
                             tbSt = entry.Value;
                         }
                     }
+                    //Creating required row for table.
+                    string[] req = new string[list[0].Length];
+                    req[0] = "Требуемые";
+                    req[1] = "Машиноместа";
+                    for (int i = 0; i < parkingReq.Count; i++)
+                    {
+                        req[2 + i * 5] = parkingReq[i].TotalLongParking.ToString();
+                        req[3 + i * 5] = parkingReq[i].TotalShortParking.ToString();
+                        req[4 + i * 5] = parkingReq[i].TotalGuestParking.ToString();
+                        req[5 + i * 5] = parkingReq[i].TotalDisabledParking.ToString();
+                        req[6 + i * 5] = parkingReq[i].TotalDisabledBigParking.ToString();
+                    }
+                    //Calculating summ of existing parkings
+                    string[] ex = new string[list[0].Length];
+                    ex[0] = "Всего";
+                    ex[1] = "на дом";
+                    for (int i = 2; i < list[0].Length; i++)
+                    {
+                        ex[i] = list.Sum(x => Convert.ToInt32(x[i])).ToString();
+                    }
+                    req[list[0].Length - 1] = parkingReq.Sum(x => x.TotalLongParking + x.TotalShortParking + x.TotalGuestParking).ToString();
                     //Creating table
                     Table tb = new Table
                     {
@@ -192,6 +213,8 @@ namespace SiteCalculations
                         CellRange nameRange = CellRange.Create(tb, 1, 2+i*5, 1, 2+i*5+4);
                         tb.MergeCells(nameRange);
                     }
+                    CellRange range = CellRange.Create(tb,1, 0, 1, 1);
+                    tb.MergeCells(range);
                     tb.Cells[1,0].TextString = "Позиция";
                     tb.Cells[2, 0].TextString = "№Участка";
                     tb.Cells[2, 1].TextString = "Дома на участке";
@@ -206,7 +229,22 @@ namespace SiteCalculations
                             tb.Cells[2, 2 + i * 5 + j].Contents[0].Rotation = Math.PI/2;
                         }
                     }
-                    var currentRow = 2;
+                    tb.InsertRows(3, 8, 1);
+                    var currentRow = 3;
+                    var curCell = 0;
+                    foreach (var item in req)
+                    {
+                        tb.Cells[currentRow, curCell].TextString = item;
+                        curCell++;
+                    }
+                    currentRow++;
+                    tb.InsertRows(4, 8, 1);
+                    curCell = 0;
+                    foreach (var item in ex)
+                    {
+                        tb.Cells[currentRow, curCell].TextString = item;
+                        curCell++;
+                    }
                     foreach (var arr in list)
                     {
                         tb.InsertRows(currentRow+1, 8, 1);
