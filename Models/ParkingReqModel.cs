@@ -24,8 +24,8 @@ namespace SiteCalculations.Models
 
         public ParkingModel CalculateParking(string name, double[] parameters)
         {
-            var parkLong = Convert.ToInt32(Math.Ceiling(LongParkingReqPeople * parameters[0] + LongParkingReqApartments * parameters[1]+ LongParkingReqSqm * parameters[0]));
-            var parkGuest = Convert.ToInt32(Math.Ceiling(GuestParkingReqPeople * parameters[0] + GuestParkingReqApartments * parameters[1] + GuestParkingReqSqm * parameters[0]));
+            var parkLong = Convert.ToInt32(Math.Ceiling(LongParkingReqPeople * parameters[0] + LongParkingReqApartments * parameters[1]+ LongParkingReqSqm * parameters[2]));
+            var parkGuest = Convert.ToInt32(Math.Ceiling(GuestParkingReqPeople * parameters[0] + GuestParkingReqApartments * parameters[1] + GuestParkingReqSqm * parameters[2]));
             var parkShort = Convert.ToInt32(Math.Ceiling(BuildInShortParkingReqSqm * parameters[3] + OfficesParkingReq * parameters[4] + StoreParkingReq * parameters[5]));
             parkShort += Convert.ToInt32(Math.Ceiling(SchoolParkingReq * parameters[6]));
             parkShort += Convert.ToInt32(Math.Ceiling(KindergartenParkingReq * parameters[7]));

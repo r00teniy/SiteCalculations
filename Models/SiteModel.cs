@@ -40,6 +40,9 @@ namespace SiteCalculations.Models
             }
             Functions f = new Functions();
             NumberOfFloors = f.GetMaxMinFromListOfStrings(floors, '-');
+            SchoolsReq = Math.Round(SchoolsReq,2);
+            KindergartensReq = Math.Round(KindergartensReq,2);
+            HospitalsReq = Math.Round(HospitalsReq, 2);
             AmenitiesReq = new AmenitiesModel(Name, amenitiesReqList);
             AmenitiesEx = new AmenitiesModel(Name, amenitiesExList);
             TotalParkingReq = new ParkingModel(Name, parkingReqList);

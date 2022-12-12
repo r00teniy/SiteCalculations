@@ -118,14 +118,13 @@ namespace SiteCalculations.Forms
                     }
                     else
                     {
-                        errLabel.Text = "парковки находятся в разработке";
-                        List<string[]> parkTableList= new List<string[]>();
+                        List<string[]> parkTableList = new List<string[]>();
                         foreach (var item in plotNumbers)
                         {
                             parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders));
                         }
                         parkTableList.RemoveAll(x => x == null);
-                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable);
+                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable, bName.Text);
                     }
                 }
                 this.Show();
@@ -169,6 +168,7 @@ namespace SiteCalculations.Forms
                 {
                     allBuildings.Add(new ApartmentBuildingModel(city, sectionsByBuilding[i]));
                 }
+                this.Hide();
                 foreach (var item in allBuildings)
                 {
                     if (item is ApartmentBuildingModel mod)
@@ -177,6 +177,7 @@ namespace SiteCalculations.Forms
                         f.CreateParkingReqText(mod.TotalParkingReq, mod.MidPoint);
                     }
                 }
+                this.Show();
             }
             else
             {

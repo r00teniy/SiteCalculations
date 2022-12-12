@@ -46,7 +46,7 @@ namespace SiteCalculations
         //Parameters_of_dyn_blocks
         string[] parkingBlockPararmArray = { "Размер", "Тип", "Обычн_МГН", "РасширенноеММ" };
         //Arrays with data for table
-        string[] parkingTypes = { "Постоянные", "Временные", "Гостевые", "всего", "Расширенные" };
+        string[] parkingTypes = { "Постоянные", "Временные", "Гостевые", "Всего", "в т.ч. расш." };
         string[] generalParamArray = { "PlotArea", "TotalConstructionArea", "BuildingPartPercent", "NumberOfFloors",
             "TotalApartmentArea", "TotalNumberOfApartments", "TotalResidents", "TotalCommerceArea" };// TODO: add Number of floors
         string[] AmenitiesParamArrayReq = { "AmenitiesReq.TotalArea", "AmenitiesReq.ChildrenArea", "AmenitiesReq.SportArea", "AmenitiesReq.RestArea",
@@ -154,7 +154,7 @@ namespace SiteCalculations
             
         }
         //Generate table.
-        public void CreateParkingTable(List<string[]> list, List<string> buildingNames, List<ParkingModel> parkingReq)
+        public void CreateParkingTable(List<string[]> list, List<string> buildingNames, List<ParkingModel> parkingReq, string siteName)
         {
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -199,15 +199,21 @@ namespace SiteCalculations
                         TableStyle = tbSt,
                         Position = GetInsertionPoint()
                     };
-                    tb.SetRowHeight(8);
-                    tb.SetColumnWidth(20);
-                    tb.Cells[0, 0].TextString = "Распределение парковок по домам и участкам";
-                    tb.InsertRows(1, 10, 1);
+                    //Creating title
                     tb.Rows[0].Style = "Название";
-                    tb.InsertRows(2, 30, 1);
-                    tb.InsertColumns(1, 20, 1);
-                    tb.InsertColumns(2, 8, list[0].Length - 2);
-                    tb.Rows[2].Style = "Заголовок";
+                    tb.Cells[0, 0].TextString = $"Распределение парковок по домам и участкам на площадке {siteName}";
+                    //Creating header
+                    tb.SetRowHeight(8);
+                    tb.SetColumnWidth(8);
+                    tb.InsertRows(1, 10, 1);
+                    tb.InsertRows(2, 8, 1);
+                    tb.Rows[1].Style = "Заголовок";
+                    tb.InsertRows(3, 16, 1);
+                    tb.Rows[2].Style = "Данные";
+                    tb.InsertColumns(1, 30, 1);
+                    tb.InsertColumns(2, 6, list[0].Length - 3);
+                    tb.InsertColumns(list[0].Length - 2, 8, 1);
+
                     for (int i = 0; i < buildingNames.Count; i++)
                     {
                         CellRange nameRange = CellRange.Create(tb, 1, 2+i*5, 1, 2+i*5+4);
@@ -216,35 +222,48 @@ namespace SiteCalculations
                     CellRange range = CellRange.Create(tb,1, 0, 1, 1);
                     tb.MergeCells(range);
                     tb.Cells[1,0].TextString = "Позиция";
-                    tb.Cells[2, 0].TextString = "№Участка";
-                    tb.Cells[2, 1].TextString = "Дома на участке";
-                    tb.Cells[2, list[0].Length - 1].TextString = "Итого";
-                    tb.Cells[2, list[0].Length - 1].Contents[0].Rotation = Math.PI / 2;
+                    range = CellRange.Create(tb, 2, 0, 3, 1);
+                    tb.MergeCells(range);
+                    tb.Cells[2, 0].TextString = "Номер Участка";
+                    range = CellRange.Create(tb, 1, list[0].Length - 1, 3, list[0].Length - 1);
+                    tb.MergeCells(range);
+                    tb.Cells[1, list[0].Length - 1].TextString = "Итого по участку";
+                    tb.Cells[1, list[0].Length - 1].Contents[0].Rotation = Math.PI / 2;
                     for (var i = 0;i  < buildingNames.Count;i++)
                     {
                         tb.Cells[1, 2+i*5].TextString = buildingNames[i];
                         for (int j = 0; j < 5; j++)
                         {
-                            tb.Cells[2, 2+i*5+j].TextString = parkingTypes[j];
-                            tb.Cells[2, 2 + i * 5 + j].Contents[0].Rotation = Math.PI/2;
+                            if (j < 3)
+                            {
+                                range = CellRange.Create(tb, 2, 2+i*5+j, 3, 2+i*5+j);
+                                tb.MergeCells(range);
+                                tb.Cells[2, 2 + i * 5 + j].TextString = parkingTypes[j];
+                                tb.Cells[2, 2 + i * 5 + j].Contents[0].Rotation = Math.PI / 2;
+                            }
+                            tb.Cells[3, 2 + i * 5 + j].TextString = parkingTypes[j];
+                            tb.Cells[3, 2 + i * 5 + j].Contents[0].Rotation = Math.PI / 2;
                         }
+                        range = CellRange.Create(tb, 2, 2 + i * 5 + 3, 2, 2 + i * 5 + 4);
+                        tb.MergeCells(range);
+                        tb.Cells[2, 2 + i * 5 + 3].TextString = "в т.ч. МГН";
                     }
-                    tb.InsertRows(3, 8, 1);
-                    var currentRow = 3;
+                    tb.InsertRows(4, 8, 1);
                     var curCell = 0;
                     foreach (var item in req)
                     {
-                        tb.Cells[currentRow, curCell].TextString = item;
+                        tb.Cells[4, curCell].TextString = item;
                         curCell++;
                     }
-                    currentRow++;
-                    tb.InsertRows(4, 8, 1);
                     curCell = 0;
+                    tb.InsertRows(5, 8, 1);
                     foreach (var item in ex)
                     {
-                        tb.Cells[currentRow, curCell].TextString = item;
+                        tb.Cells[5, curCell].TextString = item;
                         curCell++;
                     }
+                    var currentRow = 5;
+                    curCell = 0;
                     foreach (var arr in list)
                     {
                         tb.InsertRows(currentRow+1, 8, 1);
@@ -809,7 +828,7 @@ namespace SiteCalculations
                         Attachment = AttachmentPoint.MiddleCenter,
                         Location = midPointRight,
                         Width = 8,
-                        Contents = $"Для позиции {parkingReq.Name} требуется:\n Постоянных м/мест: {parkingReq.TotalLongParking}\n Гостевых м/мест: {parkingReq.TotalGuestParking}\n Временных м/мест: {parkingReq.TotalShortParking}\nв том числе:\nм- /мест для ММГН:: {parkingReq.TotalDisabledParking }\nиз которых расширенных: {parkingReq.TotalDisabledBigParking}\n"
+                        Contents = $"Для позиции {parkingReq.Name} требуется:\n Постоянных м/мест: {parkingReq.TotalLongParking}\n Гостевых м/мест: {parkingReq.TotalGuestParking}\n Временных м/мест: {parkingReq.TotalShortParking},\nв том числе:\nм/мест для ММГН: {parkingReq.TotalDisabledParking },\nиз которых расширенных: {parkingReq.TotalDisabledBigParking}\n"
                     };
                     btr.AppendEntity(acMText);
                     tr.AddNewlyCreatedDBObject(acMText, true);

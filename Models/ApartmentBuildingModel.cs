@@ -61,7 +61,7 @@ namespace SiteCalculations.Models
             AmenitiesReq = city.AreaReq.CalculateReqArea(Name,TotalResidents, TotalNumberOfApartments, TotalApartmentArea);
             AmenitiesEx = exParam;
             // Parking requires
-            TotalParkingReq = city.Parking.CalculateParking(Name, new double[]{ TotalResidents, TotalApartmentArea, TotalNumberOfApartments, CommerceArea, OfficeArea, StoreArea, 0, 0, 0, 0, 0 });
+            TotalParkingReq = city.Parking.CalculateParking(Name, new double[]{ TotalResidents, TotalNumberOfApartments, TotalApartmentArea,  CommerceArea, OfficeArea, StoreArea, 0, 0, 0, 0, 0 });
             TotalParkingEx = exParking;
         }
         public ApartmentBuildingModel(CityModel city, string[] buildingParams, BuildingBorderModel plot, AmenitiesModel exParam, ParkingModel exParking, Point3d midPoint)

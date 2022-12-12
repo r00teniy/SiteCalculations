@@ -1,6 +1,7 @@
 ﻿using SiteCalculations.Forms;
 using SiteCalculations.Models;
 using System;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace SiteCalculations
@@ -36,7 +37,7 @@ namespace SiteCalculations
             {
                 errorLabel.Visible = false;
                 f.DeserealiseJson<CityModel>(ref Functions.cityCalcTypeList, "\\city.json");
-                Functions.cityCalcTypeList.Add(new CityModel(boxName.Text, Convert.ToDouble(boxLatitude.Text), Convert.ToDouble(boxSqm.Text), Convert.ToDouble(boxSchools.Text), Convert.ToDouble(boxKindergartens.Text), Convert.ToDouble(boxHospitals.Text), Convert.ToDouble(boxSportBuildings.Text), Convert.ToDouble(boxSportFields.Text), Convert.ToDouble(boxParks.Text), f.SearchByPropNameAndValue(Functions.parkingCalcTypeList, "Name",  cbParking.SelectedItem.ToString()), f.SearchByPropNameAndValue(Functions.amenitiesCalcTypeList, "Name", cbAmenities.SelectedItem.ToString())));
+                Functions.cityCalcTypeList.Add(new CityModel(boxName.Text, Convert.ToDouble(boxLatitude.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSqm.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSchools.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxKindergartens.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxHospitals.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSportBuildings.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSportFields.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxParks.Text, CultureInfo.InvariantCulture), f.SearchByPropNameAndValue(Functions.parkingCalcTypeList, "Name",  cbParking.SelectedItem.ToString()), f.SearchByPropNameAndValue(Functions.amenitiesCalcTypeList, "Name", cbAmenities.SelectedItem.ToString())));
                 mainForm.cbCity.Items.Add(Functions.cityCalcTypeList[Functions.cityCalcTypeList.Count - 1].CityName);
                 mainForm.cbCity.SelectedIndex = Functions.cityCalcTypeList.Count - 1;
                 f.SerealiseJson<CityModel>(ref Functions.cityCalcTypeList, "\\city.json");
