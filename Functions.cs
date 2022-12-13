@@ -14,6 +14,7 @@ using AcBr = Autodesk.AutoCAD.BoundaryRepresentation;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Runtime.ExceptionServices;
 
 namespace SiteCalculations
 {
@@ -90,16 +91,65 @@ namespace SiteCalculations
                 return output;
             }    
         }
-        public string[] CreateLineForParkingTable(List<ParkingBlockModel> parkingBlocks, List<string> names, string plotNumber, List<BuildingBorderModel> borders, bool isParkingBuilding = false)
+        public int[] GetExParkingOnBuildingSite(List<ParkingBlockModel> parkingBlocks, List<string> names, List<string> plotNumbers)
+        {
+            int[] parkingNumbers = new int[names.Count*5];
+            foreach (var park in parkingBlocks)
+            {
+                for (int i = 0; i < names.Count; i++)
+                {
+                    if (park.ParkingIsForBuildingName == names[i] && park.PlotNumber == plotNumbers[i])
+                    {
+                        switch (park.Type)
+                        {
+                            case "Long":
+                                parkingNumbers[i * 5] += park.NumberOfParkings;
+                                break;
+                            case "Short":
+                                parkingNumbers[i * 5 + 1] += park.NumberOfParkings;
+                                if (park.IsForDisabled)
+                                {
+                                    parkingNumbers[i * 5 + 3] += park.NumberOfParkings;
+                                }
+                                if (park.IsForDisabledExtended)
+                                {
+                                    parkingNumbers[i * 5 + 4] += park.NumberOfParkings;
+                                }
+                                break;
+                            case "Guest":
+                                parkingNumbers[i * 5 + 2] += park.NumberOfParkings;
+                                if (park.IsForDisabled)
+                                {
+                                    parkingNumbers[i * 5 + 3] += park.NumberOfParkings;
+                                }
+                                if (park.IsForDisabledExtended)
+                                {
+                                    parkingNumbers[i * 5 + 4] += park.NumberOfParkings;
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+            return parkingNumbers;
+        }
+        public string[] CreateLineForParkingTable(List<ParkingBlockModel> parkingBlocks, List<string> names, string plotNumber, List<BuildingBorderModel> borders, bool isParkingBuilding = false, ParkingBuildingModel parBuild = null)
         {
             string[] output = new string[names.Count*5+3];
             int[] parkingNumbers = new int[names.Count * 5];
             output[0] = plotNumber;
-            output[1] = GetOnePropetyFromListOfObjectsBySecondPropertyValue(borders, "Name", "PlotNumber", plotNumber).ToString();
+            if (isParkingBuilding && parBuild != null)
+            {
+                output[1] = $"Паркинг {GetOnePropetyFromListOfObjectsBySecondPropertyValue(borders, "Name", "PlotNumber", plotNumber).ToString()}\n (на {parBuild.MaxNumberOfParkingSpaces} м/мест)";
+            }
+            else
+            {
+                output[1] = "Открытые парковки";
+            }
             //creating array for this plot
             foreach (var park in parkingBlocks)
             {
-                if (park.PlotNumber == plotNumber)
+                if (park.PlotNumber == plotNumber && park.IsInBuilding == isParkingBuilding)
                 {
                     for (int i = 0; i < names.Count; i++)
                     {
@@ -154,7 +204,7 @@ namespace SiteCalculations
             
         }
         //Generate table.
-        public void CreateParkingTable(List<string[]> list, List<string> buildingNames, List<ParkingModel> parkingReq, string siteName)
+        public void CreateParkingTable(List<string[]> list, List<string> buildingNames, List<ParkingModel> parkingReq, int[] onPlot, string siteName)
         {
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -174,8 +224,6 @@ namespace SiteCalculations
                     }
                     //Creating required row for table.
                     string[] req = new string[list[0].Length];
-                    req[0] = "Требуемые";
-                    req[1] = "Машиноместа";
                     for (int i = 0; i < parkingReq.Count; i++)
                     {
                         req[2 + i * 5] = parkingReq[i].TotalLongParking.ToString();
@@ -186,8 +234,6 @@ namespace SiteCalculations
                     }
                     //Calculating summ of existing parkings
                     string[] ex = new string[list[0].Length];
-                    ex[0] = "Всего";
-                    ex[1] = "на дом";
                     for (int i = 2; i < list[0].Length; i++)
                     {
                         ex[i] = list.Sum(x => Convert.ToInt32(x[i])).ToString();
@@ -213,7 +259,6 @@ namespace SiteCalculations
                     tb.InsertColumns(1, 30, 1);
                     tb.InsertColumns(2, 6, list[0].Length - 3);
                     tb.InsertColumns(list[0].Length - 2, 8, 1);
-
                     for (int i = 0; i < buildingNames.Count; i++)
                     {
                         CellRange nameRange = CellRange.Create(tb, 1, 2+i*5, 1, 2+i*5+4);
@@ -229,6 +274,7 @@ namespace SiteCalculations
                     tb.MergeCells(range);
                     tb.Cells[1, list[0].Length - 1].TextString = "Итого по участку";
                     tb.Cells[1, list[0].Length - 1].Contents[0].Rotation = Math.PI / 2;
+                    //Populating row 3
                     for (var i = 0;i  < buildingNames.Count;i++)
                     {
                         tb.Cells[1, 2+i*5].TextString = buildingNames[i];
@@ -248,31 +294,140 @@ namespace SiteCalculations
                         tb.MergeCells(range);
                         tb.Cells[2, 2 + i * 5 + 3].TextString = "в т.ч. МГН";
                     }
-                    tb.InsertRows(4, 8, 1);
-                    var curCell = 0;
-                    foreach (var item in req)
-                    {
-                        tb.Cells[4, curCell].TextString = item;
-                        curCell++;
-                    }
-                    curCell = 0;
-                    tb.InsertRows(5, 8, 1);
-                    foreach (var item in ex)
-                    {
-                        tb.Cells[5, curCell].TextString = item;
-                        curCell++;
-                    }
-                    var currentRow = 5;
-                    curCell = 0;
-                    foreach (var arr in list)
+                    //Creating individual plot rows
+                    var currentRow = 3;
+                    for (var j = 0; j < list.Count;j++)
                     {
                         tb.InsertRows(currentRow+1, 8, 1);
                         currentRow++;
-                        for (int i = 0; i < arr.Length; i++)
+                        if (j != list.Count - 1 && list[j][0] == list[j+1][0])
                         {
-                            tb.Cells[currentRow, i].TextString = arr[i];
+                            tb.InsertRows(currentRow + 1, 8, 1);
+                            range = CellRange.Create(tb, currentRow, 0, currentRow+1, 0);
+                            tb.MergeCells(range);
+                            tb.Cells[currentRow, 0].TextString = list[j][0];
+                            tb.Cells[currentRow, 0].Contents[0].Rotation = Math.PI / 2;
+                            //First row
+                            for (int i = 1; i < list[j].Length; i++)
+                            {
+                                tb.Cells[currentRow, i].TextString = list[j][i];
+                            }
+                            //Second row
+                            for (int i = 1; i < list[j+1].Length; i++)
+                            {
+                                tb.Cells[currentRow+1, i].TextString = list[j+1][i];
+                            }
+                            currentRow++;
+                            j++;
+                        }
+                        else
+                        {
+                            range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
+                            tb.MergeCells(range);
+                            // In case we only have parking on this plot
+                            if (list[j][1].Contains("Паркинг"))
+                            {
+                                tb.Cells[currentRow, 0].TextString = list[j][0] + " " + list[j][1];
+                            }
+                            else
+                            {
+                                tb.Cells[currentRow, 0].TextString = list[j][0];
+                            }
+                            for (int i = 2; i < list[j].Length; i++)
+                            {
+                                tb.Cells[currentRow, i].TextString = list[j][i];
+                            }
                         }
                     }
+                    //Adding summ rows
+                    //Row for on same plot
+                    currentRow++;
+                    tb.InsertRows(currentRow, 8, 1);
+                    for (var i = 0; i < onPlot.Length;i++)
+                    {
+                        tb.Cells[currentRow,2+i].TextString = onPlot[i].ToString();
+                    }
+                    range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
+                    tb.MergeCells(range);
+                    tb.Cells[currentRow, 0].TextString = "Итого в границах ГПЗУ";
+                    //Row for outside plot
+                    currentRow++;
+                    tb.InsertRows(currentRow, 8, 1);
+                    for (var i=0;i < onPlot.Length;i++)
+                    {
+                        tb.Cells[currentRow, 2+i].TextString = (Convert.ToInt32(ex[2+i]) - onPlot[i]).ToString();
+                    }
+                    range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
+                    tb.MergeCells(range);
+                    tb.Cells[currentRow, 0].TextString = "Итого за границами ГПЗУ";
+                    //Row for total ex
+                    currentRow++;
+                    tb.InsertRows(currentRow, 8, 1);
+                    for (var i=2;i < ex.Length;i++)
+                    {
+                        tb.Cells[currentRow, i].TextString = ex[i];
+                    }
+                    range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
+                    tb.MergeCells(range);
+                    tb.Cells[currentRow, 0].TextString = "Итого для позиции";
+                    //Row for total required
+                    currentRow++;
+                    tb.InsertRows(currentRow, 8, 1);
+                    for (var i=2;i < req.Length;i++)
+                    {
+                        tb.Cells[currentRow, i].TextString = req[i];
+                    }
+                    range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
+                    tb.MergeCells(range);
+                    tb.Cells[currentRow, 0].TextString = "Итого требуется";
+                    currentRow ++;
+                    //Deficit/proficit
+                    tb.InsertRows(currentRow, 8, 2);
+                    var prof = 0; //for calculating total proficit
+                    var def = 0; // for calculating total deficit
+                    for (int i = 0; i < buildingNames.Count; i++)
+                    {
+                        for (int j = 0; j < 5; j++)
+                        {
+                            var diff = Convert.ToInt32(ex[2+i*5+j]) - Convert.ToInt32(req[2 + i * 5 + j]);
+                            if (diff < 0)
+                            {
+                                tb.Cells[currentRow + 1, 2 + i * 5 + j].TextString = Math.Abs(diff).ToString();
+                            }
+                            if (diff > 0)
+                            {
+                                tb.Cells[currentRow, 2 + i * 5 + j].TextString = diff.ToString();
+                            }
+                            if (j < 3)
+                            {
+                                if (diff < 0)
+                                {
+                                    def += Math.Abs(diff);
+                                }
+                                if (diff > 0)
+                                {
+                                    prof += diff;
+                                }
+                            }
+                        }
+                    }
+                    range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
+                    tb.MergeCells(range);
+                    tb.Cells[currentRow, 0].TextString = "Профицит";
+                    range = CellRange.Create(tb, currentRow+1, 0, currentRow+1, 1);
+                    tb.MergeCells(range);
+                    tb.Cells[currentRow+1, 0].TextString = "Дефицит";
+                    tb.Cells[currentRow, list[0].Length - 1].TextString = prof.ToString();
+                    tb.Cells[currentRow + 1, list[0].Length - 1].TextString = def.ToString();
+                    currentRow += 2;
+                    //Total +-
+                    tb.InsertRows(currentRow, 8, 1);
+                    range = CellRange.Create(tb, currentRow, 0, currentRow, list[0].Length - 2);
+                    tb.MergeCells(range);
+                    tb.Cells[currentRow, 0].TextString = $"Итого { (prof > def ? "профицит" : "дефицит")}";
+                    tb.Cells[currentRow, 0].Alignment = CellAlignment.MiddleRight;
+                    tb.Cells[currentRow, list[0].Length - 1].TextString = Math.Abs(prof - def).ToString();
+                    //Adding table to drawing
                     tb.GenerateLayout();
                     btr.AppendEntity(tb);
                     tr.AddNewlyCreatedDBObject(tb, true);

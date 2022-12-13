@@ -50,13 +50,20 @@ namespace SiteCalculations.Forms
                 SiteModel site = new SiteModel(city, bName.Text, f.SearchByPropNameAndValue(borders, "Name", bName.Text).Area, sortedStages);
                 //Data for parking Table
                 var plotNumbers = f.GetSortedListOfParameterValues(sortedBuildings, "PlotNumber");
-                //var buildingNames = f.GetSortedListOfParameterValues(sortedBuildings, "Name"); // Old version
+                List<ParkingBuildingModel> parkingBuildings = sortedBuildings.Where(x => x is ParkingBuildingModel).Select(x => x as ParkingBuildingModel).ToList();
                 //Getting building names with LINQ
                 var buildingNames = 
                     (from build in sortedBuildings
                     where !(build is ParkingBuildingModel)
                     orderby build.Name
                     select build.Name).ToList();
+                //Getting plotnumbers with LINQ
+                var buildingPlotNUmbers =
+                    (from build in sortedBuildings
+                     where !(build is ParkingBuildingModel)
+                     orderby build.Name
+                     select build.PlotNumber).ToList();
+                //Getting parking requirements with LINQ
                 var parkReqForTable =
                     (from build in sortedBuildings
                      where !(build is ParkingBuildingModel)
@@ -118,13 +125,28 @@ namespace SiteCalculations.Forms
                     }
                     else
                     {
+                        //Creating parking table
                         List<string[]> parkTableList = new List<string[]>();
                         foreach (var item in plotNumbers)
                         {
-                            parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders));
+                            var test = parkingBuildings.Where(x => x.PlotNumber == item).ToList();
+                            if (test.Count == 0)
+                            {
+                                parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders));
+                            }
+                            else
+                            {
+                                parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders));
+                                foreach (var t in test)
+                                {
+                                    parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders, true, t));
+                                }
+                                
+                            }
                         }
                         parkTableList.RemoveAll(x => x == null);
-                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable, bName.Text);
+                        var exParkingOnPlot = f.GetExParkingOnBuildingSite(parkingBlocks, buildingNames, buildingPlotNUmbers);
+                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable, exParkingOnPlot, bName.Text);
                     }
                 }
                 this.Show();

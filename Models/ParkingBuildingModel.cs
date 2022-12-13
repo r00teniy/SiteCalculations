@@ -3,7 +3,7 @@ using System;
 
 namespace SiteCalculations.Models
 {
-    internal class ParkingBuildingModel : IBaseBuilding
+    public class ParkingBuildingModel : IBaseBuilding
     {
         public string StageName { get; private set; }
         public string Name { get; private set; }
