@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Runtime.ExceptionServices;
+using System.Security.Cryptography;
 
 namespace SiteCalculations
 {
@@ -66,6 +67,7 @@ namespace SiteCalculations
         // Table parameters
         double row_height = 8;
         double column_width = 12;
+        short[] parkingTableColors = { 6, 30, 33, 135, 63, 13, 85, 2, 3, 1, 4, 200, 5, 181 ,140 ,244, 21, 161, 230, 214, 184, 94, 66, 41, 155, 71, 211, 27, 175, 241 };
         //Functions for parking table
         //Get list of all buildings for table
         public List<string> GetSortedListOfParameterValues<T>(List<T> list, string paramName)
@@ -254,11 +256,11 @@ namespace SiteCalculations
                     tb.InsertRows(1, 10, 1);
                     tb.InsertRows(2, 8, 1);
                     tb.Rows[1].Style = "Заголовок";
-                    tb.InsertRows(3, 16, 1);
+                    tb.InsertRows(3, 18, 1);
                     tb.Rows[2].Style = "Данные";
                     tb.InsertColumns(1, 30, 1);
                     tb.InsertColumns(2, 6, list[0].Length - 3);
-                    tb.InsertColumns(list[0].Length - 2, 8, 1);
+                    tb.InsertColumns(list[0].Length - 1, 8, 1);
                     for (int i = 0; i < buildingNames.Count; i++)
                     {
                         CellRange nameRange = CellRange.Create(tb, 1, 2+i*5, 1, 2+i*5+4);
@@ -310,12 +312,12 @@ namespace SiteCalculations
                             //First row
                             for (int i = 1; i < list[j].Length; i++)
                             {
-                                tb.Cells[currentRow, i].TextString = list[j][i];
+                                tb.Cells[currentRow, i].TextString = list[j][i] == "0" ? "" : list[j][i];
                             }
                             //Second row
                             for (int i = 1; i < list[j+1].Length; i++)
                             {
-                                tb.Cells[currentRow+1, i].TextString = list[j+1][i];
+                                tb.Cells[currentRow+1, i].TextString = list[j+1][i] == "0" ? "" : list[j + 1][i];
                             }
                             currentRow++;
                             j++;
@@ -335,7 +337,7 @@ namespace SiteCalculations
                             }
                             for (int i = 2; i < list[j].Length; i++)
                             {
-                                tb.Cells[currentRow, i].TextString = list[j][i];
+                                tb.Cells[currentRow, i].TextString = list[j][i] == "0" ? "" : list[j][i];
                             }
                         }
                     }
@@ -345,7 +347,7 @@ namespace SiteCalculations
                     tb.InsertRows(currentRow, 8, 1);
                     for (var i = 0; i < onPlot.Length;i++)
                     {
-                        tb.Cells[currentRow,2+i].TextString = onPlot[i].ToString();
+                        tb.Cells[currentRow,2+i].TextString = onPlot[i].ToString() == "0" ? "" : onPlot[i].ToString();
                     }
                     range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
                     tb.MergeCells(range);
@@ -355,7 +357,7 @@ namespace SiteCalculations
                     tb.InsertRows(currentRow, 8, 1);
                     for (var i=0;i < onPlot.Length;i++)
                     {
-                        tb.Cells[currentRow, 2+i].TextString = (Convert.ToInt32(ex[2+i]) - onPlot[i]).ToString();
+                        tb.Cells[currentRow, 2+i].TextString = (Convert.ToInt32(ex[2+i]) - onPlot[i]).ToString() == "0" ? "" : (Convert.ToInt32(ex[2 + i]) - onPlot[i]).ToString();
                     }
                     range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
                     tb.MergeCells(range);
@@ -365,7 +367,7 @@ namespace SiteCalculations
                     tb.InsertRows(currentRow, 8, 1);
                     for (var i=2;i < ex.Length;i++)
                     {
-                        tb.Cells[currentRow, i].TextString = ex[i];
+                        tb.Cells[currentRow, i].TextString = ex[i] == "0" ? "" : ex[i];
                     }
                     range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
                     tb.MergeCells(range);
@@ -375,7 +377,7 @@ namespace SiteCalculations
                     tb.InsertRows(currentRow, 8, 1);
                     for (var i=2;i < req.Length;i++)
                     {
-                        tb.Cells[currentRow, i].TextString = req[i];
+                        tb.Cells[currentRow, i].TextString = req[i] == "0" ? "" : req[i];
                     }
                     range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
                     tb.MergeCells(range);
@@ -396,7 +398,7 @@ namespace SiteCalculations
                             }
                             if (diff > 0)
                             {
-                                tb.Cells[currentRow, 2 + i * 5 + j].TextString = diff.ToString();
+                                tb.Cells[currentRow, 2 + i * 5 + j].TextString = diff.ToString() == "0" ? "" : diff.ToString();
                             }
                             if (j < 3)
                             {
@@ -424,9 +426,34 @@ namespace SiteCalculations
                     tb.InsertRows(currentRow, 8, 1);
                     range = CellRange.Create(tb, currentRow, 0, currentRow, list[0].Length - 2);
                     tb.MergeCells(range);
-                    tb.Cells[currentRow, 0].TextString = $"Итого { (prof > def ? "профицит" : "дефицит")}";
+                    tb.Cells[currentRow, 0].TextString = $"Итого { (prof > def ? "профицит" : "дефицит")}  ";
                     tb.Cells[currentRow, 0].Alignment = CellAlignment.MiddleRight;
                     tb.Cells[currentRow, list[0].Length - 1].TextString = Math.Abs(prof - def).ToString();
+                    range.Borders.Horizontal.Margin = 2;
+                    //Setting border lineweight
+                    //Horisontal
+                    for (int i = 0; i < 7; i++)
+                    {
+                        range = CellRange.Create(tb, 3+list.Count+i, 0, 3 + list.Count + i, list[0].Length - 1);
+                        range.Borders.Bottom.LineWeight = LineWeight.LineWeight050;
+                    }
+                    range = CellRange.Create(tb, 3, 0, 3, list[0].Length - 1);
+                    range.Borders.Bottom.LineWeight = LineWeight.LineWeight050;
+                    //Vertical
+                    for (int i = 0; i < list[0].Length-2; i++)
+                    {
+                        if (i !=1 && (i-1)%5 !=0)
+                        {
+                            range = CellRange.Create(tb, 2, i, currentRow, i);
+                            range.Borders.Right.LineWeight = LineWeight.ByLayer;
+                        }
+                    }
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        range = CellRange.Create(tb, 4, 2+i*5, currentRow, 2+i*5+4);
+                        short colorIndex = parkingTableColors[Convert.ToInt16(buildingNames[i].Split('-')[1]) - 1];
+                        range.BackgroundColor = Color.FromColorIndex(ColorMethod.ByAci, colorIndex);
+                    }
                     //Adding table to drawing
                     tb.GenerateLayout();
                     btr.AppendEntity(tb);
