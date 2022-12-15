@@ -21,11 +21,14 @@ namespace SiteCalculations
             catch { }
             if (Functions.cityCalcTypeList != null)
             {
-                foreach (var item in Functions.cityCalcTypeList)
+                mainForm.cbCity.DataSource= Functions.cityCalcTypeList;
+                /*foreach (var item in Functions.cityCalcTypeList)
                 {
                     mainForm.cbCity.Items.Add(item.CityName);
-                }
+                }*/
+                mainForm.cbCity.DisplayMember = "CityName";
                 mainForm.cbCity.SelectedIndex = mainForm.cbCity.Items.Count - 1;
+                
             }
             mainForm.Show();
         }

@@ -72,6 +72,7 @@
             // 
             // cbCity
             // 
+            this.cbCity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbCity.FormattingEnabled = true;
             this.cbCity.Location = new System.Drawing.Point(119, 15);
             this.cbCity.Name = "cbCity";

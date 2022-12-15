@@ -206,7 +206,7 @@ namespace SiteCalculations
             
         }
         //Generate table.
-        public void CreateParkingTable(List<string[]> list, List<string> buildingNames, List<ParkingModel> parkingReq, int[] onPlot, string siteName)
+        public void CreateParkingTable(List<string[]> list, List<string> buildingNames, List<ParkingModel> parkingReq, int[] onPlot, string name)
         {
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -249,7 +249,7 @@ namespace SiteCalculations
                     };
                     //Creating title
                     tb.Rows[0].Style = "Название";
-                    tb.Cells[0, 0].TextString = $"Распределение парковок по домам и участкам на площадке {siteName}";
+                    tb.Cells[0, 0].TextString = $"Распределение парковок по домам и участкам на площадке {name}";
                     //Creating header
                     tb.SetRowHeight(8);
                     tb.SetColumnWidth(8);
@@ -448,7 +448,7 @@ namespace SiteCalculations
                             range.Borders.Right.LineWeight = LineWeight.ByLayer;
                         }
                     }
-                    for (int i = 0; i < list.Count; i++)
+                    for (int i = 0; i < buildingNames.Count; i++)
                     {
                         range = CellRange.Create(tb, 4, 2+i*5, currentRow, 2+i*5+4);
                         short colorIndex = parkingTableColors[Convert.ToInt16(buildingNames[i].Split('-')[1]) - 1];

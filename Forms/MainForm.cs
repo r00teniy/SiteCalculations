@@ -1,6 +1,7 @@
 ﻿using SiteCalculations.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -17,7 +18,7 @@ namespace SiteCalculations.Forms
             if (cbCity.SelectedItem != null && bName.Text != "")
             {
                 var f = new Functions();
-                CityModel city = f.SearchByPropNameAndValue(Functions.cityCalcTypeList, "CityName", cbCity.SelectedItem.ToString());
+                CityModel city = cbCity.SelectedItem as CityModel;
                 List<BuildingBorderModel> borders = f.GetBorders(bName.Text);
                 List<AmenitiesModel> exAmenities = f.GetExAmenities();
                 List<ParkingBlockModel> parkingBlocks = f.GetExParkingBlocks(borders);
@@ -48,27 +49,6 @@ namespace SiteCalculations.Forms
                 List<BaseBigAreaModel> sortedStages = f.Sort_List_By_PropertyName_Generic("Ascending", "Name", stages);
                 //Creating Site
                 SiteModel site = new SiteModel(city, bName.Text, f.SearchByPropNameAndValue(borders, "Name", bName.Text).Area, sortedStages);
-                //Data for parking Table
-                var plotNumbers = f.GetSortedListOfParameterValues(sortedBuildings, "PlotNumber");
-                List<ParkingBuildingModel> parkingBuildings = sortedBuildings.Where(x => x is ParkingBuildingModel).Select(x => x as ParkingBuildingModel).ToList();
-                //Getting building names with LINQ
-                var buildingNames = 
-                    (from build in sortedBuildings
-                    where !(build is ParkingBuildingModel)
-                    orderby build.Name
-                    select build.Name).ToList();
-                //Getting plotnumbers with LINQ
-                var buildingPlotNUmbers =
-                    (from build in sortedBuildings
-                     where !(build is ParkingBuildingModel)
-                     orderby build.Name
-                     select build.PlotNumber).ToList();
-                //Getting parking requirements with LINQ
-                var parkReqForTable =
-                    (from build in sortedBuildings
-                     where !(build is ParkingBuildingModel)
-                     orderby build.Name
-                     select build.TotalParkingReq).ToList();
                 // Generating tables
                 this.Hide();
                 if (rbSite.Checked)
@@ -125,8 +105,62 @@ namespace SiteCalculations.Forms
                     }
                     else
                     {
-                        //Creating parking table
                         List<string[]> parkTableList = new List<string[]>();
+                        var buildingNames = new List<string>();
+                        var buildingsPlotNumbers = new List<string>();
+                        List <ParkingModel> parkReqForTable = new List<ParkingModel>();
+                        var plotNumbers = f.GetSortedListOfParameterValues(sortedBuildings, "PlotNumber");
+                        //Creating parking table
+                        if (rbStages_AllStages.Checked)
+                        {
+                            //Getting building names that aren't parking buildings with LINQ
+                            buildingNames = (from build in sortedBuildings
+                                             where !(build is ParkingBuildingModel)
+                                             orderby build.Name
+                                             select build.Name).ToList();
+                            //Getting parking requirements with LINQ
+                            parkReqForTable =
+                            (from build in sortedBuildings
+                             where !(build is ParkingBuildingModel)
+                             orderby build.Name
+                             select build.TotalParkingReq).ToList();
+                            //plotnumbers with LINQ
+                            buildingsPlotNumbers =
+                            (from build in sortedBuildings
+                             where !(build is ParkingBuildingModel)
+                             orderby build.Name
+                             select build.PlotNumber).ToList();
+                        }
+                        else
+                        {
+                            if (cbStages_stages.SelectedItem != null)
+                            {
+                                //Getting building names for this stage that aren't parking buildings with LINQ
+                                buildingNames = (from build in sortedBuildings
+                                                 where !(build is ParkingBuildingModel) && build.StageName == cbStages_stages.SelectedItem.ToString()
+                                                 orderby build.Name
+                                                 select build.Name).ToList();
+                                //Getting parking requirements with LINQ
+                                parkReqForTable =
+                                (from build in sortedBuildings
+                                 where !(build is ParkingBuildingModel) && build.StageName == cbStages_stages.SelectedItem.ToString()
+                                 orderby build.Name
+                                 select build.TotalParkingReq).ToList();
+                                //plotnumbers with LINQ
+                                buildingsPlotNumbers =
+                                (from build in sortedBuildings
+                                 where !(build is ParkingBuildingModel) && build.StageName == cbStages_stages.SelectedItem.ToString()
+                                 orderby build.Name
+                                 select build.PlotNumber).ToList();
+                            }
+                            else
+                            {
+                                errLabel.Text = "выберите этап";
+                            }
+                        }
+                        //Creating list of parking buildings
+                        var parkingBuildings = sortedBuildings.Where(x => x is ParkingBuildingModel).Select(x => x as ParkingBuildingModel).ToList();
+                        //Creating lines for table
                         foreach (var item in plotNumbers)
                         {
                             var test = parkingBuildings.Where(x => x.PlotNumber == item).ToList();
@@ -145,8 +179,8 @@ namespace SiteCalculations.Forms
                             }
                         }
                         parkTableList.RemoveAll(x => x == null);
-                        var exParkingOnPlot = f.GetExParkingOnBuildingSite(parkingBlocks, buildingNames, buildingPlotNUmbers);
-                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable, exParkingOnPlot, bName.Text);
+                        var exParkingOnPlot = f.GetExParkingOnBuildingSite(parkingBlocks, buildingNames, buildingsPlotNumbers);
+                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable, exParkingOnPlot, rbStages_AllStages.Checked ? bName.Text : $"{bName.Text} по этапу cbStages_stages.SelectedItem.ToString().Split(' ')[1]");
                     }
                 }
                 this.Show();
@@ -227,11 +261,9 @@ namespace SiteCalculations.Forms
 
         private void rbParking_CheckedChanged(object sender, EventArgs e)
         {
-            //Setting stages part invisible
-            rbStages_AllStages.Visible = false;
-            rbStages_SingleStage.Visible = false;
+            rbStages_AllStages.Visible = true;
+            rbStages_SingleStage.Visible = true;
             cbStages_stages.Visible = false;
-            //Setting site part visible
             cbStages_site.Visible = false;
             cb_buildings.Visible = false;
         }
