@@ -180,7 +180,7 @@ namespace SiteCalculations.Forms
                         }
                         parkTableList.RemoveAll(x => x == null);
                         var exParkingOnPlot = f.GetExParkingOnBuildingSite(parkingBlocks, buildingNames, buildingsPlotNumbers);
-                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable, exParkingOnPlot, rbStages_AllStages.Checked ? bName.Text : $"{bName.Text} по этапу cbStages_stages.SelectedItem.ToString().Split(' ')[1]");
+                        f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable, exParkingOnPlot, rbStages_AllStages.Checked ? bName.Text : $"{bName.Text} по этапу {cbStages_stages.SelectedItem.ToString().Split(' ')[1]}");
                     }
                 }
                 this.Show();
@@ -191,19 +191,15 @@ namespace SiteCalculations.Forms
             var cmf = new CityModelForm(this);
             if (Functions.parkingCalcTypeList != null)
             {
-                foreach (var item in Functions.parkingCalcTypeList)
-                {
-                    cmf.cbParking.Items.Add(item.Name);
-                }
-                cmf.cbParking.SelectedIndex = Functions.parkingCalcTypeList.Count - 1;
+                cmf.cbParking.DataSource = Functions.parkingCalcTypeList;
+                cmf.cbParking.DisplayMember = "Name";
+                cmf.cbParking.SelectedIndex = cmf.cbParking.Items.Count - 1;
             }
             if (Functions.amenitiesCalcTypeList != null)
             {
-                foreach (var item in Functions.amenitiesCalcTypeList)
-                {
-                    cmf.cbAmenities.Items.Add(item.Name);
-                }
-                cmf.cbAmenities.SelectedIndex = Functions.amenitiesCalcTypeList.Count - 1;
+                cmf.cbAmenities.DataSource = Functions.amenitiesCalcTypeList;
+                cmf.cbAmenities.DisplayMember = "Name";
+                cmf.cbAmenities.SelectedIndex = cmf.cbAmenities.Items.Count - 1;
             }
             cmf.Show();
         }
@@ -294,6 +290,18 @@ namespace SiteCalculations.Forms
         private void rbStages_AllStages_CheckedChanged(object sender, EventArgs e)
         {
             cbStages_stages.Visible = false;
+        }
+
+        private void bCityDelete_Click(object sender, EventArgs e)
+        {
+            var f = new Functions();
+            if (cbCity.SelectedItem != null)
+            {
+                f.DeserealiseJson<CityModel>(ref Functions.cityCalcTypeList, "\\city.json");
+                Functions.cityCalcTypeList.Remove(Functions.cityCalcTypeList.FirstOrDefault(x => x.CityName == (cbCity.SelectedItem as CityModel).CityName));
+                f.SerealiseJson<CityModel>(ref Functions.cityCalcTypeList, "\\city.json");
+                cbCity.DataSource = Functions.cityCalcTypeList;
+            }
         }
     }
 }

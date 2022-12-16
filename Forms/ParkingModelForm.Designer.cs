@@ -61,7 +61,7 @@
             this.bLong.Location = new System.Drawing.Point(307, 21);
             this.bLong.Name = "bLong";
             this.bLong.Size = new System.Drawing.Size(100, 20);
-            this.bLong.TabIndex = 9;
+            this.bLong.TabIndex = 1;
             this.bLong.Text = "0";
             // 
             // label4
@@ -83,7 +83,7 @@
             this.cbLong.Location = new System.Drawing.Point(180, 20);
             this.cbLong.Name = "cbLong";
             this.cbLong.Size = new System.Drawing.Size(121, 21);
-            this.cbLong.TabIndex = 10;
+            this.cbLong.TabIndex = 30;
             this.cbLong.TabStop = false;
             // 
             // cbGuest
@@ -96,7 +96,7 @@
             this.cbGuest.Location = new System.Drawing.Point(180, 47);
             this.cbGuest.Name = "cbGuest";
             this.cbGuest.Size = new System.Drawing.Size(121, 21);
-            this.cbGuest.TabIndex = 13;
+            this.cbGuest.TabIndex = 31;
             this.cbGuest.TabStop = false;
             // 
             // bShort
@@ -104,7 +104,7 @@
             this.bShort.Location = new System.Drawing.Point(307, 48);
             this.bShort.Name = "bShort";
             this.bShort.Size = new System.Drawing.Size(100, 20);
-            this.bShort.TabIndex = 12;
+            this.bShort.TabIndex = 2;
             this.bShort.Text = "0";
             // 
             // label1
@@ -121,7 +121,7 @@
             this.bGuest.Location = new System.Drawing.Point(307, 75);
             this.bGuest.Name = "bGuest";
             this.bGuest.Size = new System.Drawing.Size(100, 20);
-            this.bGuest.TabIndex = 15;
+            this.bGuest.TabIndex = 3;
             this.bGuest.Text = "0";
             // 
             // label2
@@ -138,7 +138,7 @@
             this.bSchool.Location = new System.Drawing.Point(307, 158);
             this.bSchool.Name = "bSchool";
             this.bSchool.Size = new System.Drawing.Size(100, 20);
-            this.bSchool.TabIndex = 18;
+            this.bSchool.TabIndex = 6;
             this.bSchool.Text = "0";
             // 
             // label3
@@ -155,7 +155,7 @@
             this.bKindergarten.Location = new System.Drawing.Point(307, 184);
             this.bKindergarten.Name = "bKindergarten";
             this.bKindergarten.Size = new System.Drawing.Size(100, 20);
-            this.bKindergarten.TabIndex = 20;
+            this.bKindergarten.TabIndex = 7;
             this.bKindergarten.Text = "0";
             // 
             // label5
@@ -172,7 +172,7 @@
             this.bHospital.Location = new System.Drawing.Point(307, 210);
             this.bHospital.Name = "bHospital";
             this.bHospital.Size = new System.Drawing.Size(100, 20);
-            this.bHospital.TabIndex = 22;
+            this.bHospital.TabIndex = 8;
             this.bHospital.Tag = "";
             this.bHospital.Text = "0";
             // 
@@ -190,7 +190,7 @@
             this.createParkingButton.Location = new System.Drawing.Point(307, 288);
             this.createParkingButton.Name = "createParkingButton";
             this.createParkingButton.Size = new System.Drawing.Size(100, 22);
-            this.createParkingButton.TabIndex = 24;
+            this.createParkingButton.TabIndex = 12;
             this.createParkingButton.Text = "Создать";
             this.createParkingButton.UseVisualStyleBackColor = true;
             this.createParkingButton.Click += new System.EventHandler(this.createParkingButton_Click);
@@ -200,7 +200,7 @@
             this.bName.Location = new System.Drawing.Point(190, 288);
             this.bName.Name = "bName";
             this.bName.Size = new System.Drawing.Size(100, 20);
-            this.bName.TabIndex = 23;
+            this.bName.TabIndex = 11;
             // 
             // label7
             // 
@@ -227,7 +227,7 @@
             this.bSport.Location = new System.Drawing.Point(307, 236);
             this.bSport.Name = "bSport";
             this.bSport.Size = new System.Drawing.Size(100, 20);
-            this.bSport.TabIndex = 28;
+            this.bSport.TabIndex = 9;
             this.bSport.Text = "0";
             // 
             // label8
@@ -244,7 +244,7 @@
             this.bFastFood.Location = new System.Drawing.Point(307, 262);
             this.bFastFood.Name = "bFastFood";
             this.bFastFood.Size = new System.Drawing.Size(100, 20);
-            this.bFastFood.TabIndex = 30;
+            this.bFastFood.TabIndex = 10;
             this.bFastFood.Text = "0";
             // 
             // label9
@@ -261,7 +261,7 @@
             this.bOffice.Location = new System.Drawing.Point(308, 103);
             this.bOffice.Name = "bOffice";
             this.bOffice.Size = new System.Drawing.Size(100, 20);
-            this.bOffice.TabIndex = 32;
+            this.bOffice.TabIndex = 4;
             this.bOffice.Text = "0";
             // 
             // label10
@@ -278,7 +278,7 @@
             this.bStore.Location = new System.Drawing.Point(307, 132);
             this.bStore.Name = "bStore";
             this.bStore.Size = new System.Drawing.Size(100, 20);
-            this.bStore.TabIndex = 34;
+            this.bStore.TabIndex = 5;
             this.bStore.Text = "0";
             // 
             // label11

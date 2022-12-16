@@ -64,11 +64,14 @@ namespace SiteCalculations.Forms
             {
                 var f = new Functions();
                 errorLabel.Visible = false;
-                f.DeserealiseJson<ParkingReqModel>(ref Functions.parkingCalcTypeList, @".\parking.json");
+                try
+                { f.DeserealiseJson<ParkingReqModel>(ref Functions.parkingCalcTypeList, @".\parking.json"); }
+                catch { }
                 Functions.parkingCalcTypeList.Add(new ParkingReqModel(values));
-                cityModelForm.cbParking.Items.Add(Functions.parkingCalcTypeList[Functions.parkingCalcTypeList.Count - 1].Name);
-                cityModelForm.cbParking.SelectedIndex = Functions.parkingCalcTypeList.Count - 1;
+                cityModelForm.cbParking.DataSource = Functions.parkingCalcTypeList;
+                cityModelForm.cbParking.SelectedIndex = cityModelForm.cbParking.Items.Count-1;
                 f.SerealiseJson<ParkingReqModel>(ref Functions.parkingCalcTypeList, @".\parking.json");
+
                 ParkingModelForm obj = (ParkingModelForm)Application.OpenForms["ParkingModelForm"];
                 obj.Close();
             }

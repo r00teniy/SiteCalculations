@@ -81,7 +81,7 @@
             this.boxLatitude.Location = new System.Drawing.Point(204, 36);
             this.boxLatitude.Name = "boxLatitude";
             this.boxLatitude.Size = new System.Drawing.Size(100, 20);
-            this.boxLatitude.TabIndex = 3;
+            this.boxLatitude.TabIndex = 2;
             // 
             // label2
             // 
@@ -97,7 +97,7 @@
             this.boxSqm.Location = new System.Drawing.Point(204, 62);
             this.boxSqm.Name = "boxSqm";
             this.boxSqm.Size = new System.Drawing.Size(100, 20);
-            this.boxSqm.TabIndex = 5;
+            this.boxSqm.TabIndex = 3;
             // 
             // label3
             // 
@@ -113,7 +113,7 @@
             this.boxSchools.Location = new System.Drawing.Point(204, 88);
             this.boxSchools.Name = "boxSchools";
             this.boxSchools.Size = new System.Drawing.Size(100, 20);
-            this.boxSchools.TabIndex = 7;
+            this.boxSchools.TabIndex = 4;
             // 
             // label4
             // 
@@ -129,7 +129,7 @@
             this.boxKindergartens.Location = new System.Drawing.Point(204, 114);
             this.boxKindergartens.Name = "boxKindergartens";
             this.boxKindergartens.Size = new System.Drawing.Size(100, 20);
-            this.boxKindergartens.TabIndex = 9;
+            this.boxKindergartens.TabIndex = 5;
             // 
             // label5
             // 
@@ -145,7 +145,7 @@
             this.boxHospitals.Location = new System.Drawing.Point(204, 140);
             this.boxHospitals.Name = "boxHospitals";
             this.boxHospitals.Size = new System.Drawing.Size(100, 20);
-            this.boxHospitals.TabIndex = 11;
+            this.boxHospitals.TabIndex = 6;
             // 
             // label6
             // 
@@ -176,19 +176,23 @@
             // 
             // cbParking
             // 
+            this.cbParking.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbParking.FormattingEnabled = true;
+            this.cbParking.ItemHeight = 13;
             this.cbParking.Location = new System.Drawing.Point(484, 87);
             this.cbParking.Name = "cbParking";
             this.cbParking.Size = new System.Drawing.Size(182, 21);
-            this.cbParking.TabIndex = 14;
+            this.cbParking.TabIndex = 10;
             // 
             // cbAmenities
             // 
+            this.cbAmenities.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbAmenities.FormattingEnabled = true;
+            this.cbAmenities.ItemHeight = 13;
             this.cbAmenities.Location = new System.Drawing.Point(484, 140);
             this.cbAmenities.Name = "cbAmenities";
             this.cbAmenities.Size = new System.Drawing.Size(182, 21);
-            this.cbAmenities.TabIndex = 15;
+            this.cbAmenities.TabIndex = 11;
             // 
             // createParkingButton
             // 
@@ -215,7 +219,7 @@
             this.createCityButton.Location = new System.Drawing.Point(204, 177);
             this.createCityButton.Name = "createCityButton";
             this.createCityButton.Size = new System.Drawing.Size(100, 25);
-            this.createCityButton.TabIndex = 18;
+            this.createCityButton.TabIndex = 12;
             this.createCityButton.Text = "Создать город";
             this.createCityButton.UseVisualStyleBackColor = true;
             this.createCityButton.Click += new System.EventHandler(this.createCityButton_Click);
@@ -236,7 +240,7 @@
             this.boxSportBuildings.Location = new System.Drawing.Point(566, 10);
             this.boxSportBuildings.Name = "boxSportBuildings";
             this.boxSportBuildings.Size = new System.Drawing.Size(100, 20);
-            this.boxSportBuildings.TabIndex = 21;
+            this.boxSportBuildings.TabIndex = 7;
             // 
             // label9
             // 
@@ -252,7 +256,7 @@
             this.boxSportFields.Location = new System.Drawing.Point(566, 36);
             this.boxSportFields.Name = "boxSportFields";
             this.boxSportFields.Size = new System.Drawing.Size(100, 20);
-            this.boxSportFields.TabIndex = 23;
+            this.boxSportFields.TabIndex = 8;
             // 
             // label10
             // 
@@ -268,7 +272,7 @@
             this.boxParks.Location = new System.Drawing.Point(566, 62);
             this.boxParks.Name = "boxParks";
             this.boxParks.Size = new System.Drawing.Size(100, 20);
-            this.boxParks.TabIndex = 25;
+            this.boxParks.TabIndex = 9;
             // 
             // label11
             // 

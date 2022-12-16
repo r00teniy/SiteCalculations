@@ -47,6 +47,7 @@
             this.rbStages_AllStages = new System.Windows.Forms.RadioButton();
             this.rbStages_SingleStage = new System.Windows.Forms.RadioButton();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.bCityDelete = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -77,13 +78,13 @@
             this.cbCity.Location = new System.Drawing.Point(119, 15);
             this.cbCity.Name = "cbCity";
             this.cbCity.Size = new System.Drawing.Size(139, 21);
-            this.cbCity.TabIndex = 2;
+            this.cbCity.TabIndex = 1;
             // 
             // bCityCreate
             // 
-            this.bCityCreate.Location = new System.Drawing.Point(119, 40);
+            this.bCityCreate.Location = new System.Drawing.Point(24, 40);
             this.bCityCreate.Name = "bCityCreate";
-            this.bCityCreate.Size = new System.Drawing.Size(139, 21);
+            this.bCityCreate.Size = new System.Drawing.Size(111, 21);
             this.bCityCreate.TabIndex = 3;
             this.bCityCreate.Text = "Создать новый";
             this.bCityCreate.UseVisualStyleBackColor = true;
@@ -94,7 +95,7 @@
             this.bCreateReq.Location = new System.Drawing.Point(16, 93);
             this.bCreateReq.Name = "bCreateReq";
             this.bCreateReq.Size = new System.Drawing.Size(242, 21);
-            this.bCreateReq.TabIndex = 4;
+            this.bCreateReq.TabIndex = 3;
             this.bCreateReq.Text = "Расчитать требуемые площадки и парковки";
             this.bCreateReq.UseVisualStyleBackColor = true;
             this.bCreateReq.Click += new System.EventHandler(this.bCreateReq_Click);
@@ -113,7 +114,7 @@
             this.bName.Location = new System.Drawing.Point(138, 67);
             this.bName.Name = "bName";
             this.bName.Size = new System.Drawing.Size(120, 20);
-            this.bName.TabIndex = 6;
+            this.bName.TabIndex = 2;
             // 
             // label3
             // 
@@ -131,7 +132,7 @@
             this.rbSite.Location = new System.Drawing.Point(12, 4);
             this.rbSite.Name = "rbSite";
             this.rbSite.Size = new System.Drawing.Size(78, 17);
-            this.rbSite.TabIndex = 8;
+            this.rbSite.TabIndex = 4;
             this.rbSite.TabStop = true;
             this.rbSite.Text = "Площадка";
             this.rbSite.UseVisualStyleBackColor = true;
@@ -143,7 +144,7 @@
             this.rbStage.Location = new System.Drawing.Point(96, 4);
             this.rbStage.Name = "rbStage";
             this.rbStage.Size = new System.Drawing.Size(49, 17);
-            this.rbStage.TabIndex = 9;
+            this.rbStage.TabIndex = 5;
             this.rbStage.Text = "Этап";
             this.rbStage.UseVisualStyleBackColor = true;
             this.rbStage.CheckedChanged += new System.EventHandler(this.rbStage_CheckedChanged);
@@ -154,7 +155,7 @@
             this.rbParking.Location = new System.Drawing.Point(151, 4);
             this.rbParking.Name = "rbParking";
             this.rbParking.Size = new System.Drawing.Size(75, 17);
-            this.rbParking.TabIndex = 10;
+            this.rbParking.TabIndex = 6;
             this.rbParking.Text = "Парковки";
             this.rbParking.UseVisualStyleBackColor = true;
             this.rbParking.CheckedChanged += new System.EventHandler(this.rbParking_CheckedChanged);
@@ -164,7 +165,7 @@
             this.bCreateTable.Location = new System.Drawing.Point(65, 226);
             this.bCreateTable.Name = "bCreateTable";
             this.bCreateTable.Size = new System.Drawing.Size(130, 21);
-            this.bCreateTable.TabIndex = 11;
+            this.bCreateTable.TabIndex = 7;
             this.bCreateTable.Text = "Создать таблицу";
             this.bCreateTable.UseVisualStyleBackColor = true;
             this.bCreateTable.Click += new System.EventHandler(this.bCreateTable_Click);
@@ -192,10 +193,11 @@
             // cbStages_stages
             // 
             this.cbStages_stages.FormattingEnabled = true;
+            this.cbStages_stages.ItemHeight = 13;
             this.cbStages_stages.Location = new System.Drawing.Point(138, 184);
             this.cbStages_stages.Name = "cbStages_stages";
             this.cbStages_stages.Size = new System.Drawing.Size(120, 21);
-            this.cbStages_stages.TabIndex = 14;
+            this.cbStages_stages.TabIndex = 10;
             this.cbStages_stages.Visible = false;
             // 
             // panel1
@@ -215,7 +217,7 @@
             this.rbStages_AllStages.Location = new System.Drawing.Point(13, 1);
             this.rbStages_AllStages.Name = "rbStages_AllStages";
             this.rbStages_AllStages.Size = new System.Drawing.Size(78, 17);
-            this.rbStages_AllStages.TabIndex = 19;
+            this.rbStages_AllStages.TabIndex = 8;
             this.rbStages_AllStages.TabStop = true;
             this.rbStages_AllStages.Text = "Все этапы";
             this.rbStages_AllStages.UseVisualStyleBackColor = true;
@@ -228,7 +230,7 @@
             this.rbStages_SingleStage.Location = new System.Drawing.Point(126, 2);
             this.rbStages_SingleStage.Name = "rbStages_SingleStage";
             this.rbStages_SingleStage.Size = new System.Drawing.Size(77, 17);
-            this.rbStages_SingleStage.TabIndex = 20;
+            this.rbStages_SingleStage.TabIndex = 9;
             this.rbStages_SingleStage.Text = "Один этап";
             this.rbStages_SingleStage.UseVisualStyleBackColor = true;
             this.rbStages_SingleStage.Visible = false;
@@ -244,11 +246,22 @@
             this.panel2.Size = new System.Drawing.Size(244, 21);
             this.panel2.TabIndex = 21;
             // 
+            // bCityDelete
+            // 
+            this.bCityDelete.Location = new System.Drawing.Point(147, 40);
+            this.bCityDelete.Name = "bCityDelete";
+            this.bCityDelete.Size = new System.Drawing.Size(111, 21);
+            this.bCityDelete.TabIndex = 3;
+            this.bCityDelete.Text = "Удалить";
+            this.bCityDelete.UseVisualStyleBackColor = true;
+            this.bCityDelete.Click += new System.EventHandler(this.bCityDelete_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(279, 250);
+            this.Controls.Add(this.bCityDelete);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.errLabel);
@@ -295,5 +308,6 @@
         private System.Windows.Forms.RadioButton rbStages_AllStages;
         private System.Windows.Forms.RadioButton rbStages_SingleStage;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button bCityDelete;
     }
 }

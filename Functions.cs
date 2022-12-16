@@ -14,8 +14,6 @@ using AcBr = Autodesk.AutoCAD.BoundaryRepresentation;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Runtime.ExceptionServices;
-using System.Security.Cryptography;
 
 namespace SiteCalculations
 {
@@ -77,9 +75,7 @@ namespace SiteCalculations
             foreach (var block in list)
             {
                 if (!output.Contains(GetObjectPropertyByName(block, paramName).ToString()))
-                {
-                    output.Add(GetObjectPropertyByName(block, paramName).ToString());
-                }
+                { output.Add(GetObjectPropertyByName(block, paramName).ToString()); }
             }
             //sorting
             try
@@ -110,24 +106,16 @@ namespace SiteCalculations
                             case "Short":
                                 parkingNumbers[i * 5 + 1] += park.NumberOfParkings;
                                 if (park.IsForDisabled)
-                                {
-                                    parkingNumbers[i * 5 + 3] += park.NumberOfParkings;
-                                }
+                                { parkingNumbers[i * 5 + 3] += park.NumberOfParkings; }
                                 if (park.IsForDisabledExtended)
-                                {
-                                    parkingNumbers[i * 5 + 4] += park.NumberOfParkings;
-                                }
+                                { parkingNumbers[i * 5 + 4] += park.NumberOfParkings; }
                                 break;
                             case "Guest":
                                 parkingNumbers[i * 5 + 2] += park.NumberOfParkings;
                                 if (park.IsForDisabled)
-                                {
-                                    parkingNumbers[i * 5 + 3] += park.NumberOfParkings;
-                                }
+                                { parkingNumbers[i * 5 + 3] += park.NumberOfParkings; }
                                 if (park.IsForDisabledExtended)
-                                {
-                                    parkingNumbers[i * 5 + 4] += park.NumberOfParkings;
-                                }
+                                { parkingNumbers[i * 5 + 4] += park.NumberOfParkings; }
                                 break;
                         }
                     }
@@ -140,14 +128,7 @@ namespace SiteCalculations
             string[] output = new string[names.Count*5+3];
             int[] parkingNumbers = new int[names.Count * 5];
             output[0] = plotNumber;
-            if (isParkingBuilding && parBuild != null)
-            {
-                output[1] = $"Паркинг {GetOnePropetyFromListOfObjectsBySecondPropertyValue(borders, "Name", "PlotNumber", plotNumber).ToString()}\n (на {parBuild.MaxNumberOfParkingSpaces} м/мест)";
-            }
-            else
-            {
-                output[1] = "Открытые парковки";
-            }
+            output[1] = (isParkingBuilding && parBuild != null) ? $"Паркинг {GetOnePropetyFromListOfObjectsBySecondPropertyValue(borders, "Name", "PlotNumber", plotNumber).ToString()}\n (на {parBuild.MaxNumberOfParkingSpaces} м/мест)" : "Открытые парковки";
             //creating array for this plot
             foreach (var park in parkingBlocks)
             {
@@ -220,9 +201,7 @@ namespace SiteCalculations
                     {
                         var tStyle = (TableStyle)tr.GetObject(entry.Value, OpenMode.ForRead);
                         if (tStyle.Name == parkTableStyleName)
-                        {
-                            tbSt = entry.Value;
-                        }
+                        { tbSt = entry.Value; }
                     }
                     //Creating required row for table.
                     string[] req = new string[list[0].Length];
@@ -327,14 +306,7 @@ namespace SiteCalculations
                             range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
                             tb.MergeCells(range);
                             // In case we only have parking on this plot
-                            if (list[j][1].Contains("Паркинг"))
-                            {
-                                tb.Cells[currentRow, 0].TextString = list[j][0] + " " + list[j][1];
-                            }
-                            else
-                            {
-                                tb.Cells[currentRow, 0].TextString = list[j][0];
-                            }
+                            tb.Cells[currentRow, 0].TextString = list[j][1].Contains("Паркинг") ? tb.Cells[currentRow, 0].TextString = list[j][0] + " " + list[j][1] : tb.Cells[currentRow, 0].TextString = list[j][0];
                             for (int i = 2; i < list[j].Length; i++)
                             {
                                 tb.Cells[currentRow, i].TextString = list[j][i] == "0" ? "" : list[j][i];
@@ -395,21 +367,12 @@ namespace SiteCalculations
                             if (diff < 0)
                             {
                                 tb.Cells[currentRow + 1, 2 + i * 5 + j].TextString = Math.Abs(diff).ToString();
+                                def += j < 3 ? Math.Abs(diff) : 0;
                             }
                             if (diff > 0)
                             {
                                 tb.Cells[currentRow, 2 + i * 5 + j].TextString = diff.ToString() == "0" ? "" : diff.ToString();
-                            }
-                            if (j < 3)
-                            {
-                                if (diff < 0)
-                                {
-                                    def += Math.Abs(diff);
-                                }
-                                if (diff > 0)
-                                {
-                                    prof += diff;
-                                }
+                                prof += j < 3 ? diff : 0;
                             }
                         }
                     }
@@ -469,9 +432,7 @@ namespace SiteCalculations
             var sortedBlockList = SortListOfObjectsByParameterToSeparateLists(blockList, "PlotNumber");
             
             foreach (var item in sortedBlockList)
-            {
-                output.Add(new ParkingModel(item, SearchByPropNameAndValue(borders, "PlotNumber", item[0].PlotNumber)));
-            }
+            { output.Add(new ParkingModel(item, SearchByPropNameAndValue(borders, "PlotNumber", item[0].PlotNumber))); }
             return output;
         }
         //Function that creates parking block models for existing parking parts
@@ -769,25 +730,19 @@ namespace SiteCalculations
             PromptPointOptions pPtOpts = new PromptPointOptions("");
             pPtOpts.Message = "\nВыберете точку положения таблицы: ";
             pPtRes = ed.GetPoint(pPtOpts);
-            Point3d pt = pPtRes.Value;
-            return pt;
+            return pPtRes.Value;
         }
         public PointContainment CheckIfObjectIsInsidePolyline(Polyline pl, Object obj)
         {
             Point3d pt = new Point3d(0,0,0);
             Curve cur = (Curve)pl;
             if (obj is DBText tx)
-            {
-                pt = tx.Position;
-            }
+            { pt = tx.Position; }
             if (obj is BlockReference br)
-            {
-                pt = br.Position;
-            }
+            { pt = br.Position; }
             using(Region region = RegionFromClosedCurve(pl))
             {
-                PointContainment containment = GetPointContainment(region, pt);
-                return containment;
+                return GetPointContainment(region, pt);
             }
         }
         public Region RegionFromClosedCurve(Curve curve)
@@ -813,9 +768,7 @@ namespace SiteCalculations
             if (region == null)
                 throw new InvalidOperationException("Failed to create region");
             using (region)
-            {
-                return GetPointContainment(region, point);
-            }
+            { return GetPointContainment(region, point); }
         }
         public static PointContainment GetPointContainment(Region region, Point3d point)
         {
@@ -853,17 +806,11 @@ namespace SiteCalculations
                     tb.InsertColumns(3, column_width, 22);
                     //First line
                     if (site != null)
-                    {
-                        tb.Cells[0, 0].TextString = "ТЭП площадки " + site.Name; // TODO: FIX FOR DIFFERENT OPTIONS
-                    }
+                    { tb.Cells[0, 0].TextString = "ТЭП площадки " + site.Name; } // TODO: FIX FOR DIFFERENT OPTIONS }
                     else if (stages != null)
-                    {
-                        tb.Cells[0, 0].TextString = "ТЭП площадки " + stages[0].Name;
-                    }
-                    else 
-                    {
-                        tb.Cells[0, 0].TextString = "ТЭП площадки " + stage.Name; 
-                    }
+                    { tb.Cells[0, 0].TextString = "ТЭП площадки " + stages[0].Name; }
+                    else
+                    { tb.Cells[0, 0].TextString = "ТЭП площадки " + stage.Name; }
                     if (stage != null && stages == null)
                     {
                         stages = new List<BaseBigAreaModel>();
@@ -873,15 +820,11 @@ namespace SiteCalculations
                     int current_row = 1;
                     //filling top row
                     for (var i = 0;i < topOfTheTableArray.Length;i++)
-                    {
-                        tb.Cells[current_row, i].TextString = topOfTheTableArray[i];
-                    }
+                    { tb.Cells[current_row, i].TextString = topOfTheTableArray[i]; }
                     current_row++;
                     //Site
                     if (site != null)
-                    {
-                        AddAllDataForSingleObject(ref tb, ref current_row, 2, site);
-                    }
+                    { AddAllDataForSingleObject(ref tb, ref current_row, 2, site); }
                     // Stages
                     if (stages != null)
                     {
@@ -893,22 +836,15 @@ namespace SiteCalculations
                                 int bId = 0;
                                 for (int i = 0; i < buildingsByStage.Count; i++)
                                 {
-                                    if (buildingsByStage[i][0].StageName == item.Name)
-                                    {
-                                        bId = i;
-                                    }
+                                    bId = buildingsByStage[i][0].StageName == item.Name ? i : bId;
                                 }
                                 foreach (var bItem in buildingsByStage[bId])
-                                {
-                                    AddAllDataForSingleObject(ref tb, ref current_row, 2, bItem);
-                                }
+                                { AddAllDataForSingleObject(ref tb, ref current_row, 2, bItem); }
                             }
                             if (buildings != null)
                             {
                                 foreach (var bem in buildings)
-                                {
-                                    AddAllDataForSingleObject(ref tb, ref current_row, 2, bem);
-                                }
+                                { AddAllDataForSingleObject(ref tb, ref current_row, 2, bem); }
                             }
                         }
                     }
@@ -949,13 +885,7 @@ namespace SiteCalculations
             {
                 for (int i = startPositionInArray; i < array.Length; i++)
                 {
-                    if (GetObjectPropertyByName(obj, array[i]) != null && GetObjectPropertyByName(obj, array[i]).ToString() != "0")
-                    {
-                        tb.Cells[current_row, current_column + i - startPositionInArray].TextString = GetObjectPropertyByName(obj, array[i]).ToString();
-                    } else
-                    {
-                        tb.Cells[current_row, current_column + i - startPositionInArray].TextString = " ";
-                    }
+                    tb.Cells[current_row, current_column + i - startPositionInArray].TextString = (GetObjectPropertyByName(obj, array[i]) != null && GetObjectPropertyByName(obj, array[i]).ToString() != "0") ? GetObjectPropertyByName(obj, array[i]).ToString() : " ";
                 }
             }
             if (ChangeCurrentColumn)
@@ -1078,13 +1008,6 @@ namespace SiteCalculations
             }
             return obj;
         }
-        public T GetObjectPropertyByName<T>(Object obj, String name)
-        {
-            Object retval = GetObjectPropertyByName(obj, name);
-            if (retval == null) { return default(T); }
-            // throws InvalidCastException if types are incompatible
-            return (T)retval;
-        }
         public List<List<T>> SortListOfObjectsByParameterToSeparateLists<T>(List<T> objects, string parameter)
         {
             List<List<T>> sortedList = new List<List<T>>();
@@ -1098,7 +1021,7 @@ namespace SiteCalculations
                         obId = i;
                     }
                 }
-                if (obId == -1)
+                if (obId ==-1)
                 {
                     obId = sortedList.Count;
                     sortedList.Add(new List<T>());
@@ -1106,12 +1029,6 @@ namespace SiteCalculations
                 sortedList[obId].Add(ob);
             }
             return sortedList;
-        }
-        public int DivideStringsGetRooundedInt(string value1, string value2)
-        {
-            double val1 = Convert.ToDouble(value1);
-            double val2 = Convert.ToDouble(value2);
-            return Convert.ToInt32(Math.Round(val1 / val2));
         }
         public object GetOnePropetyFromListOfObjectsBySecondPropertyValue<T>(List<T> list, string prop1, string prop2, string value1)
         {
@@ -1133,31 +1050,20 @@ namespace SiteCalculations
         {
             return list.FirstOrDefault(x => x.GetType().GetProperty(propName).GetValue(x, null).ToString() == propValue);
         }
-        public string GetMaxMinFromListOfStrings(List<string> list, char separater)
+        public string GetMaxMinFromListOfStrings(List<string> list, char separator)
         {
-            int max = 0;
-            int min = 100;
+            int max = -100000;
+            int min = 100000;
             foreach (var item in list)
             {
-                var arr = item.Split(separater);
-                foreach (var et in arr)
+                foreach (var et in item.Split(separator))
                 {
                     var val = Convert.ToInt32(et);
-                    if (max < val)
-                    {
-                        max = val;
-                    }
-                    if (min > val)
-                    {
-                        min = val;
-                    }
+                    max = max < val ? val : max;
+                    min = min > val ? val : min;
                 }
             }
-            if (min == max)
-            {
-                return min.ToString();
-            }
-            return min + "-" + max;
+            return min == max ? min.ToString() : min + "-" + max;
         }
         public void DeserealiseJson<T>(ref List<T> list, string filename)
         {
@@ -1175,5 +1081,5 @@ namespace SiteCalculations
         {
             return list.OrderBy(s => int.Parse(Regex.Match(s, @"\d+").Value)).ToList();
         }
-}
+    }
 }

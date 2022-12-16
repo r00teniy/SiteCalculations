@@ -135,11 +135,14 @@ namespace SiteCalculations.Forms
             {
                 var f = new Functions();
                 errorLabel.Visible = false;
-                f.DeserealiseJson<AmenitiesReqModel>(ref Functions.amenitiesCalcTypeList, @".\amenities.json");
+                try
+                { f.DeserealiseJson<AmenitiesReqModel>(ref Functions.amenitiesCalcTypeList, @".\amenities.json"); }
+                catch { }
                 Functions.amenitiesCalcTypeList.Add(new AmenitiesReqModel(values));
-                cityModelForm.cbAmenities.Items.Add(Functions.amenitiesCalcTypeList[Functions.amenitiesCalcTypeList.Count - 1].Name);
+                cityModelForm.cbAmenities.DataSource = Functions.amenitiesCalcTypeList;
                 cityModelForm.cbAmenities.SelectedIndex = Functions.amenitiesCalcTypeList.Count - 1;
                 f.SerealiseJson<AmenitiesReqModel>(ref Functions.amenitiesCalcTypeList, @".\amenities.json");
+                
                 AmenitiesModelForm obj = (AmenitiesModelForm)Application.OpenForms["AmenitiesModelForm"];
                 obj.Close();
             }

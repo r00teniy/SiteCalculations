@@ -2,6 +2,7 @@
 using SiteCalculations.Models;
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace SiteCalculations
@@ -36,9 +37,11 @@ namespace SiteCalculations
             if (boxName.Text != "" && cbAmenities.SelectedItem != null && cbParking.SelectedItem != null)
             {
                 errorLabel.Visible = false;
-                f.DeserealiseJson<CityModel>(ref Functions.cityCalcTypeList, "\\city.json");
-                Functions.cityCalcTypeList.Add(new CityModel(boxName.Text, Convert.ToDouble(boxLatitude.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSqm.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSchools.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxKindergartens.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxHospitals.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSportBuildings.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSportFields.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxParks.Text, CultureInfo.InvariantCulture), f.SearchByPropNameAndValue(Functions.parkingCalcTypeList, "Name",  cbParking.SelectedItem.ToString()), f.SearchByPropNameAndValue(Functions.amenitiesCalcTypeList, "Name", cbAmenities.SelectedItem.ToString())));
-                mainForm.cbCity.Items.Add(Functions.cityCalcTypeList[Functions.cityCalcTypeList.Count - 1].CityName);
+                try
+                { f.DeserealiseJson<CityModel>(ref Functions.cityCalcTypeList, "\\city.json"); }
+                catch { }
+                Functions.cityCalcTypeList.Add(new CityModel(boxName.Text, Convert.ToDouble(boxLatitude.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSqm.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSchools.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxKindergartens.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxHospitals.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSportBuildings.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxSportFields.Text, CultureInfo.InvariantCulture), Convert.ToDouble(boxParks.Text, CultureInfo.InvariantCulture), cbParking.SelectedItem as ParkingReqModel, cbAmenities.SelectedItem as AmenitiesReqModel));
+                mainForm.cbCity.DataSource = Functions.cityCalcTypeList;
                 mainForm.cbCity.SelectedIndex = Functions.cityCalcTypeList.Count - 1;
                 f.SerealiseJson<CityModel>(ref Functions.cityCalcTypeList, "\\city.json");
                 CityModelForm obj = (CityModelForm)Application.OpenForms["CityModelForm"];
@@ -56,8 +59,9 @@ namespace SiteCalculations
             if (cbParking.SelectedItem != null)
             {
                 f.DeserealiseJson<ParkingReqModel>(ref Functions.parkingCalcTypeList, "\\parking.json");
-                Functions.parkingCalcTypeList.Remove(f.SearchByPropNameAndValue(Functions.parkingCalcTypeList, "Name", cbParking.SelectedItem.ToString()));
+                Functions.parkingCalcTypeList.Remove(Functions.parkingCalcTypeList.FirstOrDefault(x => x.Name == (cbParking.SelectedItem as ParkingReqModel).Name));
                 f.SerealiseJson<ParkingReqModel>(ref Functions.parkingCalcTypeList, "\\parking.json");
+                cbParking.DataSource= Functions.parkingCalcTypeList;
             }
         }
 
@@ -67,8 +71,9 @@ namespace SiteCalculations
             if (cbParking.SelectedItem != null)
             {
                 f.DeserealiseJson<AmenitiesReqModel>(ref Functions.amenitiesCalcTypeList, "\\amenities.json");
-                Functions.amenitiesCalcTypeList.Remove(f.SearchByPropNameAndValue(Functions.amenitiesCalcTypeList, "Name", cbAmenities.SelectedItem.ToString()));
+                Functions.amenitiesCalcTypeList.Remove(Functions.amenitiesCalcTypeList.FirstOrDefault(x => x.Name == (cbAmenities.SelectedItem as AmenitiesReqModel).Name));
                 f.SerealiseJson<AmenitiesReqModel>(ref Functions.amenitiesCalcTypeList, "\\amenities.json");
+                cbAmenities.DataSource= Functions.amenitiesCalcTypeList;
             }
         }
     }

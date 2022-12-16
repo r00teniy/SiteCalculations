@@ -77,7 +77,7 @@
             this.bChildren.Location = new System.Drawing.Point(352, 13);
             this.bChildren.Name = "bChildren";
             this.bChildren.Size = new System.Drawing.Size(100, 20);
-            this.bChildren.TabIndex = 12;
+            this.bChildren.TabIndex = 1;
             this.bChildren.Text = "0";
             // 
             // label4
@@ -107,7 +107,7 @@
             this.bSport.Location = new System.Drawing.Point(352, 39);
             this.bSport.Name = "bSport";
             this.bSport.Size = new System.Drawing.Size(100, 20);
-            this.bSport.TabIndex = 15;
+            this.bSport.TabIndex = 2;
             this.bSport.Text = "0";
             // 
             // label1
@@ -137,7 +137,7 @@
             this.bRest.Location = new System.Drawing.Point(352, 65);
             this.bRest.Name = "bRest";
             this.bRest.Size = new System.Drawing.Size(100, 20);
-            this.bRest.TabIndex = 18;
+            this.bRest.TabIndex = 3;
             this.bRest.Text = "0";
             // 
             // label2
@@ -167,7 +167,7 @@
             this.bUtility.Location = new System.Drawing.Point(352, 91);
             this.bUtility.Name = "bUtility";
             this.bUtility.Size = new System.Drawing.Size(100, 20);
-            this.bUtility.TabIndex = 21;
+            this.bUtility.TabIndex = 4;
             this.bUtility.Text = "0";
             // 
             // label3
@@ -197,7 +197,7 @@
             this.bTrash.Location = new System.Drawing.Point(352, 117);
             this.bTrash.Name = "bTrash";
             this.bTrash.Size = new System.Drawing.Size(100, 20);
-            this.bTrash.TabIndex = 24;
+            this.bTrash.TabIndex = 5;
             this.bTrash.Text = "0";
             // 
             // label5
@@ -227,7 +227,7 @@
             this.bDogs.Location = new System.Drawing.Point(352, 143);
             this.bDogs.Name = "bDogs";
             this.bDogs.Size = new System.Drawing.Size(100, 20);
-            this.bDogs.TabIndex = 27;
+            this.bDogs.TabIndex = 6;
             this.bDogs.Text = "0";
             // 
             // label6
@@ -257,7 +257,7 @@
             this.bTotal.Location = new System.Drawing.Point(352, 169);
             this.bTotal.Name = "bTotal";
             this.bTotal.Size = new System.Drawing.Size(100, 20);
-            this.bTotal.TabIndex = 30;
+            this.bTotal.TabIndex = 7;
             this.bTotal.Text = "0";
             // 
             // label7
@@ -287,7 +287,7 @@
             this.bGreenery.Location = new System.Drawing.Point(352, 195);
             this.bGreenery.Name = "bGreenery";
             this.bGreenery.Size = new System.Drawing.Size(100, 20);
-            this.bGreenery.TabIndex = 33;
+            this.bGreenery.TabIndex = 8;
             this.bGreenery.Text = "0";
             // 
             // label8
@@ -304,7 +304,7 @@
             this.createParkingButton.Location = new System.Drawing.Point(350, 244);
             this.createParkingButton.Name = "createParkingButton";
             this.createParkingButton.Size = new System.Drawing.Size(100, 25);
-            this.createParkingButton.TabIndex = 35;
+            this.createParkingButton.TabIndex = 10;
             this.createParkingButton.Text = "Создать";
             this.createParkingButton.UseVisualStyleBackColor = true;
             this.createParkingButton.Click += new System.EventHandler(this.createParkingButton_Click);
@@ -332,7 +332,7 @@
             this.bName.Location = new System.Drawing.Point(216, 247);
             this.bName.Name = "bName";
             this.bName.Size = new System.Drawing.Size(128, 20);
-            this.bName.TabIndex = 34;
+            this.bName.TabIndex = 9;
             // 
             // errorLabel
             // 
