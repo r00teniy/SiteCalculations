@@ -1,4 +1,5 @@
-﻿using SiteCalculations.Models;
+﻿using Autodesk.AutoCAD.DatabaseServices;
+using SiteCalculations.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Design;
@@ -183,8 +184,9 @@ namespace SiteCalculations.Forms
                         f.CreateParkingTable(parkTableList, buildingNames, parkReqForTable, exParkingOnPlot, rbStages_AllStages.Checked ? bName.Text : $"{bName.Text} по этапу {cbStages_stages.SelectedItem.ToString().Split(' ')[1]}");
                     }
                 }
-                this.Show();
+                f.StoreSettings((cbCity.SelectedItem as CityModel).CityName, bName.Text);
             }
+
         }
         private void bCityCreate_Click(object sender, EventArgs e)
         {

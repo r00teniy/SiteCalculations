@@ -1,6 +1,7 @@
 ﻿using Autodesk.AutoCAD.Runtime;
 using SiteCalculations.Forms;
 using SiteCalculations.Models;
+using System.Linq;
 
 [assembly: CommandClass(typeof(SiteCalculations.Main))]
 
@@ -23,8 +24,11 @@ namespace SiteCalculations
             {
                 mainForm.cbCity.DataSource= Functions.cityCalcTypeList;
                 mainForm.cbCity.DisplayMember = "CityName";
-                mainForm.cbCity.SelectedIndex = mainForm.cbCity.Items.Count - 1;
+                
             }
+            string[] settings = f.RetrieveSettings();
+            mainForm.cbCity.SelectedIndex = (settings[0] != null) ? Functions.cityCalcTypeList.IndexOf(Functions.cityCalcTypeList.Where(x => x.CityName == settings[0]).First()) : mainForm.cbCity.Items.Count - 1;
+            mainForm.bName.Text = (settings[1] != null) ? settings[1] : "";
             mainForm.Show();
         }
     }

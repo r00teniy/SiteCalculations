@@ -293,7 +293,6 @@
         private System.Windows.Forms.Button bCityCreate;
         private System.Windows.Forms.Button bCreateReq;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox bName;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.RadioButton rbSite;
         private System.Windows.Forms.RadioButton rbStage;
@@ -309,5 +308,6 @@
         private System.Windows.Forms.RadioButton rbStages_SingleStage;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button bCityDelete;
+        public System.Windows.Forms.TextBox bName;
     }
 }

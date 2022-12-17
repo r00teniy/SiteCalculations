@@ -66,6 +66,34 @@ namespace SiteCalculations
         double row_height = 8;
         double column_width = 12;
         short[] parkingTableColors = { 6, 30, 33, 135, 63, 13, 85, 2, 3, 1, 4, 200, 5, 181 ,140 ,244, 21, 161, 230, 214, 184, 94, 66, 41, 155, 71, 211, 27, 175, 241 };
+        //Store settings in dwg
+        public void StoreSettings(string city, string siteName)
+        {
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                using (DocumentLock acLckDoc = doc.LockDocument())
+                {
+                    db.SetCustomProperty("Город", city);
+                    db.SetCustomProperty("Площадка", siteName);
+                    tr.Commit();
+                }
+            }
+        }
+        //Retrieve settings from dwg
+        public string[] RetrieveSettings()
+        {
+            string[] settings = new string[2];
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                using (DocumentLock acLckDoc = doc.LockDocument())
+                {
+                    settings[0] = db.GetCustomProperty("Город");
+                    settings[1] = db.GetCustomProperty("Площадка");
+                    tr.Commit();
+                }
+            }
+            return settings;
+        }
         //Functions for parking table
         //Get list of all buildings for table
         public List<string> GetSortedListOfParameterValues<T>(List<T> list, string paramName)
