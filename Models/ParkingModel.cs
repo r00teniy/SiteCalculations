@@ -16,10 +16,16 @@ namespace SiteCalculations.Models
         public int ShortDisabledBig { get; private set; }
         public int GuestDisabled { get; private set; }
         public int GuestDisabledBig { get; private set; }
-        public ParkingModel(List<ParkingBlockModel> list, BuildingBorderModel border)
+        public ParkingModel(List<ParkingBlockModel> list, string plotNumber = null, string name = null)
         {
-            Name = border.Name;
-            PlotNumber = border.PlotNumber;
+            if (plotNumber !=null)
+            {
+                PlotNumber = plotNumber;
+            }
+            if (name != null)
+            {
+                Name = name;
+            }
             foreach (var item in list)
             {
                 if (item != null)

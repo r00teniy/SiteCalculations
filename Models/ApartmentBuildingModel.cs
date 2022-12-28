@@ -31,7 +31,7 @@ namespace SiteCalculations.Models
         public ParkingModel TotalParkingReq { get; private set; }
         public ParkingModel TotalParkingEx { get; private set; }
         //Combining building from sections
-        public ApartmentBuildingModel(CityModel city, List<ApartmentBuildingSectionModel> sectionList, BuildingBorderModel plot, AmenitiesModel exParam, ParkingModel exParking)
+        public ApartmentBuildingModel(CityModel city, List<ApartmentBuildingSectionModel> sectionList, ZoneBorderModel plot, AmenitiesModel exParam, ParkingModel exParking)
         {
             StageName = sectionList[0].StageName;
             Name = sectionList[0].Name;
@@ -64,7 +64,7 @@ namespace SiteCalculations.Models
             TotalParkingReq = city.Parking.CalculateParking(Name, new double[]{ TotalResidents, TotalNumberOfApartments, TotalApartmentArea,  CommerceArea, OfficeArea, StoreArea, 0, 0, 0, 0, 0 });
             TotalParkingEx = exParking;
         }
-        public ApartmentBuildingModel(CityModel city, string[] buildingParams, BuildingBorderModel plot, AmenitiesModel exParam, ParkingModel exParking, Point3d midPoint)
+        public ApartmentBuildingModel(CityModel city, string[] buildingParams, ZoneBorderModel plot, AmenitiesModel exParam, ParkingModel exParking, Point3d midPoint)
         {
             StageName = buildingParams[0];
             Name = buildingParams[1];

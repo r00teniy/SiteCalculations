@@ -37,6 +37,12 @@ namespace SiteCalculations.Models
                 SchoolsReq+= l.SchoolsReq;
                 KindergartensReq+= l.KindergartensReq;
                 HospitalsReq+= l.HospitalsReq;
+                ParksReq+= l.ParksReq;
+                ParksEx+= l.ParksEx;
+                SportBuildingsReq+= l.SportBuildingsReq;
+                SportBuildingsEx+= l.SportBuildingsEx;
+                SportFieldsReq+= l.SportFieldsReq;
+                SportFieldsEx+= l.SportFieldsEx;
             }
             Functions f = new Functions();
             NumberOfFloors = f.GetMaxMinFromListOfStrings(floors, '-');

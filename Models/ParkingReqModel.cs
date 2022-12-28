@@ -21,6 +21,16 @@ namespace SiteCalculations.Models
         public double OfficesParkingReq { get; set; }
         public double StoreParkingReq { get; set; }
         public double PublicFoodParkingReq { get; set; }
+        /*public string LongParkingFormula { get; set; }
+        public string ShortParkingFormula { get; set; }
+        public string GuestParkingFormula { get; set; }
+        public double SchoolParkingFormula { get; set; }
+        public double KindergartenParkingFormula { get; set; }
+        public double HospitalParkingFormula { get; set; }
+        public double SportBuildingsParkingFormula { get; set; }
+        public double OfficesParkingFormula { get; set; }
+        public double StoreParkingFormula { get; set; }
+        public double PublicFoodParkingFormula { get; set; }*/
 
         public ParkingModel CalculateParking(string name, double[] parameters)
         {

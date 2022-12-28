@@ -14,7 +14,6 @@
         public int TotalNumberOfApartments { get; set; }
         public double TotalApartmentArea { get; set; }
         public double TotalCommerceArea { get; set; }
-        public string NUmberOfFloors { get; set; }
         //Amenities
         public AmenitiesModel AmenitiesReq { get; set; }
         public AmenitiesModel AmenitiesEx { get; set; }
@@ -26,5 +25,13 @@
         public double SchoolsEx { get; set; }
         public double KindergartensEx { get; set; }
         public double HospitalsEx { get; set; }
+        //other req
+        public double ParksReq { get; set; }
+        public double SportBuildingsReq { get; set; }
+        public double SportFieldsReq { get; set; }
+        //other ex
+        public double ParksEx { get; set; }
+        public double SportBuildingsEx { get; set; }
+        public double SportFieldsEx { get; set; }
     }
 }

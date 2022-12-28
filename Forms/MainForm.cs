@@ -20,13 +20,16 @@ namespace SiteCalculations.Forms
             {
                 var f = new Functions();
                 CityModel city = cbCity.SelectedItem as CityModel;
-                List<BuildingBorderModel> borders = f.GetBorders(bName.Text);
+                List<PlotBorderModel> plotBorders = f.GetPlotBorders();
+                List<List<ZoneBorderModel>> zoneBorders = f.GetZoneBorders(bName.Text);
+                //Adding plots to building zones and special zones
+                f.AddPlotNumbersToZones(ref zoneBorders, plotBorders);
                 List<AmenitiesModel> exAmenities = f.GetExAmenities();
-                List<ParkingBlockModel> parkingBlocks = f.GetExParkingBlocks(borders);
+                List<ParkingBlockModel> parkingBlocks = f.GetExParkingBlocks(zoneBorders[0]); ;
                 //Creating parking models
-                List<ParkingModel> exParking = f.CreateExParking(parkingBlocks, borders);
+                List<ParkingModel> exParking = f.CreateExParking(parkingBlocks, plotBorders);
                 //getting separate building
-                List<IBaseBuilding> allBuildings = f.GetBuildings(city, borders, exAmenities, exParking);
+                List<IBaseBuilding> allBuildings = f.GetBuildings(city, zoneBorders[0], exAmenities, exParking);
                 //Getting sections
                 List<ApartmentBuildingSectionModel> allSections = f.GetSecttions();
                 //Sorting sections by building name
@@ -34,7 +37,7 @@ namespace SiteCalculations.Forms
                 //Creating Buildings from sections and adding them to main pool
                 for (int i = 0; i < sectionsByBuilding.Count; i++)
                 {
-                    allBuildings.Add(new ApartmentBuildingModel(city, sectionsByBuilding[i], f.SearchByPropNameAndValue(borders, "Name", sectionsByBuilding[i][0].Name), f.SearchByPropNameAndValue(exAmenities, "Name", sectionsByBuilding[i][0].Name), f.SearchByPropNameAndValue(exParking, "Name", sectionsByBuilding[i][0].Name)));
+                    allBuildings.Add(new ApartmentBuildingModel(city, sectionsByBuilding[i], f.SearchByPropNameAndValue(zoneBorders[0], "Name", sectionsByBuilding[i][0].Name), f.SearchByPropNameAndValue(exAmenities, "Name", sectionsByBuilding[i][0].Name), f.SearchByPropNameAndValue(exParking, "Name", sectionsByBuilding[i][0].Name)));
                 }
                 //Sorting buildings by name
                 List<IBaseBuilding> sortedBuildings = f.Sort_List_By_PropertyName_Generic("Ascending", "Name", allBuildings);
@@ -44,12 +47,12 @@ namespace SiteCalculations.Forms
                 List<BaseBigAreaModel> stages = new List<BaseBigAreaModel>(); ;
                 for (int i = 0; i < buildingsByStage.Count; i++)
                 {
-                    stages.Add(new StageModel(city, f.SearchByPropNameAndValue(borders, "Name", buildingsByStage[i][0].StageName).Area, buildingsByStage[i]));
+                    stages.Add(new StageModel(city, f.SearchByPropNameAndValue(zoneBorders[1], "Name", buildingsByStage[i][0].StageName).Area, buildingsByStage[i]));
                 }
                 //Sorting stages
                 List<BaseBigAreaModel> sortedStages = f.Sort_List_By_PropertyName_Generic("Ascending", "Name", stages);
                 //Creating Site
-                SiteModel site = new SiteModel(city, bName.Text, f.SearchByPropNameAndValue(borders, "Name", bName.Text).Area, sortedStages);
+                SiteModel site = new SiteModel(city, bName.Text, f.SearchByPropNameAndValue(zoneBorders[2], "Name", bName.Text).Area, sortedStages);
                 // Generating tables
                 this.Hide();
                 if (rbSite.Checked)
@@ -110,7 +113,7 @@ namespace SiteCalculations.Forms
                         var buildingNames = new List<string>();
                         var buildingsPlotNumbers = new List<string>();
                         List <ParkingModel> parkReqForTable = new List<ParkingModel>();
-                        var plotNumbers = f.GetSortedListOfParameterValues(sortedBuildings, "PlotNumber");
+                        var plotNumbers = f.GetSortedListOfParameterValues(plotBorders, "PlotNumber");
                         //Creating parking table
                         if (rbStages_AllStages.Checked)
                         {
@@ -167,14 +170,14 @@ namespace SiteCalculations.Forms
                             var test = parkingBuildings.Where(x => x.PlotNumber == item).ToList();
                             if (test.Count == 0)
                             {
-                                parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders));
+                                parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item));
                             }
                             else
                             {
-                                parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders));
+                                parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item));
                                 foreach (var t in test)
                                 {
-                                    parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, borders, true, t));
+                                    parkTableList.Add(f.CreateLineForParkingTable(parkingBlocks, buildingNames, item, zoneBorders[0], true, t));
                                 }
                                 
                             }

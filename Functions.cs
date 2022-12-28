@@ -37,6 +37,8 @@ namespace SiteCalculations
         public static string stageBorderLayer = "12_Граница_";
         public static string siteBorderLayer = "11_Граница_площадки";
         public static string plotNumbersLayer = "10_Номера_участков";
+        public static string plotsBorderLayer = "19_Кад_участки";
+        public static string zonesBorderLayer = "14_Граница_";
         public string parkTableStyleName = "ГП Таблица паркомест";
         string buildingAreaExLayer = "31_Площадки_проект";
         string amenitiesLayerName = "30_Площадки_требуемые";
@@ -151,12 +153,12 @@ namespace SiteCalculations
             }
             return parkingNumbers;
         }
-        public string[] CreateLineForParkingTable(List<ParkingBlockModel> parkingBlocks, List<string> names, string plotNumber, List<BuildingBorderModel> borders, bool isParkingBuilding = false, ParkingBuildingModel parBuild = null)
+        public string[] CreateLineForParkingTable(List<ParkingBlockModel> parkingBlocks, List<string> names, string plotNumber, List<ZoneBorderModel> borders = null, bool isParkingBuilding = false, ParkingBuildingModel parBuild = null)
         {
             string[] output = new string[names.Count*5+3];
             int[] parkingNumbers = new int[names.Count * 5];
             output[0] = plotNumber;
-            output[1] = (isParkingBuilding && parBuild != null) ? $"Паркинг {GetOnePropetyFromListOfObjectsBySecondPropertyValue(borders, "Name", "PlotNumber", plotNumber).ToString()}\n (на {parBuild.MaxNumberOfParkingSpaces} м/мест)" : "Открытые парковки";
+            output[1] = (isParkingBuilding && parBuild != null) ? $"Паркинг {GetOnePropetyFromListOfObjectsBySecondPropertyValue(borders, "Name", "PlotNumber", plotNumber).ToString()}\n (на {parBuild.MaxNumberOfParkingSpaces} м/мест)" : "\nОткрытые парковки";
             //creating array for this plot
             foreach (var park in parkingBlocks)
             {
@@ -334,7 +336,9 @@ namespace SiteCalculations
                             range = CellRange.Create(tb, currentRow, 0, currentRow, 1);
                             tb.MergeCells(range);
                             // In case we only have parking on this plot
-                            tb.Cells[currentRow, 0].TextString = list[j][1].Contains("Паркинг") ? tb.Cells[currentRow, 0].TextString = list[j][0] + " " + list[j][1] : tb.Cells[currentRow, 0].TextString = list[j][0];
+                            tb.Cells[currentRow, 0].TextString = list[j][0] + " " + list[j][1];
+                            //option for different naming
+                            //tb.Cells[currentRow, 0].TextString = list[j][1].Contains("Паркинг") ? tb.Cells[currentRow, 0].TextString = list[j][0] + " " + list[j][1] : tb.Cells[currentRow, 0].TextString = list[j][0];
                             for (int i = 2; i < list[j].Length; i++)
                             {
                                 tb.Cells[currentRow, i].TextString = list[j][i] == "0" ? "" : list[j][i];
@@ -453,18 +457,42 @@ namespace SiteCalculations
                 tr.Commit();
             }
         }
+        //Function that adds plotNumber to zones
+        public void AddPlotNumbersToZones(ref List<List<ZoneBorderModel>> zones, List<PlotBorderModel> plots)
+        {
+            for (int j = 0; j < zones.Count; j++)
+            {
+                if (j != 1 || j != 2)
+                {
+                    for (var i = 0; i < zones[j].Count; i++)
+                    {
+                        Point3d point = zones[j][i].Polyline.GeometricExtents.MinPoint + (zones[j][i].Polyline.GeometricExtents.MaxPoint - zones[j][i].Polyline.GeometricExtents.MinPoint) / 2;
+                        if (GetPointContainment(zones[j][i].Polyline, point) != PointContainment.Outside)
+                        {
+                            foreach (var pl in plots)
+                            {
+                                if (GetPointContainment(pl.Polyline, point) != PointContainment.Outside)
+                                {
+                                    zones[j][i].PlotNumber = pl.PlotNumber;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         //Function that creates parking models for buildings for existing parking
-        public List<ParkingModel> CreateExParking(List<ParkingBlockModel> blockList, List<BuildingBorderModel> borders)
+        public List<ParkingModel> CreateExParking(List<ParkingBlockModel> blockList, List<PlotBorderModel> borders)
         {
             List<ParkingModel> output= new List<ParkingModel>();
             var sortedBlockList = SortListOfObjectsByParameterToSeparateLists(blockList, "PlotNumber");
             
             foreach (var item in sortedBlockList)
-            { output.Add(new ParkingModel(item, SearchByPropNameAndValue(borders, "PlotNumber", item[0].PlotNumber))); }
+            { output.Add(new ParkingModel(item, SearchByPropNameAndValue(borders, "PlotNumber", item[0].PlotNumber).ToString(), item[0].ParkingIsForBuildingName)); }
             return output;
         }
         //Function that creates parking block models for existing parking parts
-        public List<ParkingBlockModel> GetExParkingBlocks(List<BuildingBorderModel> borders)
+        public List<ParkingBlockModel> GetExParkingBlocks(List<ZoneBorderModel> borders)
         {
             List<ParkingBlockModel> output = new List<ParkingBlockModel>();
             using (Transaction tr = db.TransactionManager.StartTransaction())
@@ -586,7 +614,7 @@ namespace SiteCalculations
             }
             return output;
         }
-        public List<IBaseBuilding> GetBuildings(CityModel city, List<BuildingBorderModel> borders = null, List<AmenitiesModel> exParams = null, List<ParkingModel> exParking = null, bool onlyGetReqParams = false)
+        public List<IBaseBuilding> GetBuildings(CityModel city, List<ZoneBorderModel> borders = null, List<AmenitiesModel> exParams = null, List<ParkingModel> exParking = null, bool onlyGetReqParams = false)
         {
             List<IBaseBuilding> output = new List<IBaseBuilding>();
             using (Transaction tr = db.TransactionManager.StartTransaction())
@@ -681,37 +709,28 @@ namespace SiteCalculations
             }
             return output;
         }
-        //Function to get all informations on borders needed for model
-        public List<BuildingBorderModel> GetBorders(string siteName)
+        //Function to get all informations on plot borders needed for model
+        public List<PlotBorderModel> GetPlotBorders()
         {
-            List<BuildingBorderModel> output = new List<BuildingBorderModel>();
+            List<PlotBorderModel> output = new List<PlotBorderModel>();
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 using (DocumentLock acLckDoc = doc.LockDocument())
                 {
                     var bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead, false) as BlockTable;
                     var btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForRead, false) as BlockTableRecord;
-                    List<Polyline> buildingBordersList = new List<Polyline>();
-                    List<string> buildingBordersNamesList = new List<string>();
-                    List<DBText> buildingBorderTextobjects = new List<DBText>();
+                    List<Polyline> plotsBordersList = new List<Polyline>();
+                    List<DBText> plotsBorderTextobjects = new List<DBText>();
                     foreach (ObjectId objectId in btr)
                     {
+                        //Getting all polylines
                         if (objectId.ObjectClass == rxClassPolyline)
                         {
                             var pl = tr.GetObject(objectId, OpenMode.ForRead) as Polyline;
-                            if (pl.Layer.Contains(buildingBorderLayer) && pl != null)
+                            //getting separate plots borders
+                            if (pl.Layer == plotsBorderLayer && pl != null)
                             {
-                                buildingBordersNamesList.Add(pl.Layer.Replace(buildingBorderLayer, ""));
-                                buildingBordersList.Add(pl);
-                            }
-                            else if (pl.Layer.Contains(stageBorderLayer) && pl != null)
-                            {
-                                var stName = pl.Layer.Replace(stageBorderLayer, "");
-                                output.Add(new BuildingBorderModel(stName, pl.Area));
-                            }
-                            else if (pl.Layer == siteBorderLayer && pl != null)
-                            {
-                                output.Add(new BuildingBorderModel(siteName, pl.Area));
+                                plotsBordersList.Add(pl);
                             }
                         }
                         if (objectId.ObjectClass == rxClassText)
@@ -719,25 +738,25 @@ namespace SiteCalculations
                             var tx = tr.GetObject(objectId, OpenMode.ForRead) as DBText;
                             if (tx.Layer == plotNumbersLayer)
                             {
-                                buildingBorderTextobjects.Add(tx);
+                                plotsBorderTextobjects.Add(tx);
                             }
                         }
                     }
-                    if (buildingBordersList.Count == buildingBorderTextobjects.Count)
+                    if (plotsBordersList.Count == plotsBorderTextobjects.Count)
                     {
-                        for (int i = 0; i < buildingBordersList.Count; i++)
+                        for (int i = 0; i < plotsBordersList.Count; i++)
                         {
                             int countCheck = output.Count;
-                            foreach (var item in buildingBorderTextobjects)
+                            foreach (var item in plotsBorderTextobjects)
                             {
                                 // Checking if text position is inside polyline
-                                if (CheckIfObjectIsInsidePolyline(buildingBordersList[i], item) != PointContainment.Outside)
+                                if (CheckIfObjectIsInsidePolyline(plotsBordersList[i], item) != PointContainment.Outside)
                                 {
                                     // Creating EntityBorderM<odel
-                                    output.Add(new BuildingBorderModel(buildingBordersNamesList[i], buildingBordersList[i].Area, item.TextString ));
+                                    output.Add(new PlotBorderModel(item.TextString, plotsBordersList[i]));
                                 }
                             }
-                            if (countCheck == output.Count)
+                            if (countCheck == output.Count) //chercking that every border has text inside
                             {
                                 ed.WriteMessage("К 1+ из границ не был найден номер, проверьте что у каждой границы есть номер внутри\n");
                             }
@@ -752,6 +771,65 @@ namespace SiteCalculations
             }
             return output;
         }
+        //Function to get all informations on plot borders needed for model
+        public List<List<ZoneBorderModel>> GetZoneBorders(string siteName)
+        {
+            List<List<ZoneBorderModel>> output = new List<List<ZoneBorderModel>>()
+            {
+                new List<ZoneBorderModel>(),
+                new List<ZoneBorderModel>(),
+                new List<ZoneBorderModel>(),
+                new List<ZoneBorderModel>(),
+                new List<ZoneBorderModel>()
+            };
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                using (DocumentLock acLckDoc = doc.LockDocument())
+                {
+                    var bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead, false) as BlockTable;
+                    var btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForRead, false) as BlockTableRecord;
+                    foreach (ObjectId objectId in btr)
+                    {
+                        //Getting all polylines
+                        if (objectId.ObjectClass == rxClassPolyline)
+                        {
+                            var pl = tr.GetObject(objectId, OpenMode.ForRead) as Polyline;
+                            //getting polylines of building plot borders
+                            if (pl.Layer.Contains(buildingBorderLayer) && pl != null)
+                            {
+                                output[0].Add(new ZoneBorderModel(pl.Layer.Replace(buildingBorderLayer, ""), pl));
+                            }
+                            //getting stage borders
+                            else if (pl.Layer.Contains(stageBorderLayer) && pl != null)
+                            {
+                                output[1].Add(new ZoneBorderModel(pl.Layer.Replace(stageBorderLayer, ""), pl));
+                            }
+                            //getting site borders
+                            else if (pl.Layer == siteBorderLayer && pl != null)
+                            {
+                                output[2].Add(new ZoneBorderModel(siteName, pl));
+                            }
+                            //getting zone borders
+                            else if (pl.Layer.Contains(zonesBorderLayer) && pl != null)
+                            {
+                                var ln = pl.Layer.Replace(zonesBorderLayer, "");
+                                if (ln.Contains("ТОП"))
+                                {
+                                    output[3].Add(new ZoneBorderModel(ln.Replace("ТОП_", ""), pl));
+                                }
+                                else if (ln.Contains("КомБыт"))
+                                {
+                                    output[4].Add(new ZoneBorderModel(ln.Replace("КомБыт_", ""), pl));
+                                }
+                            }
+                        }
+                    }
+                }
+                tr.Commit();
+            }
+            return output;
+        }
+        //function that asks user for point input
         public Point3d GetInsertionPoint()
         {
             PromptPointResult pPtRes;

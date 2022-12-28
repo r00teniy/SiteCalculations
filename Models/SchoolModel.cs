@@ -17,7 +17,7 @@ namespace SiteCalculations.Models
         public ParkingModel TotalParkingReq { get; private set; }
         public ParkingModel TotalParkingEx { get; private set; }
         public Point3d MidPoint { get; private set; }
-        public SchoolModel(CityModel city, string[] parameters, BuildingBorderModel plot, ParkingModel exParking, Point3d midPoint)
+        public SchoolModel(CityModel city, string[] parameters, ZoneBorderModel plot, ParkingModel exParking, Point3d midPoint)
         {
             StageName = parameters[0];
             Name = parameters[1];

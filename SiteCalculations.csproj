@@ -131,8 +131,8 @@
     <Compile Include="Models\ApartmentBuildingModel.cs" />
     <Compile Include="Models\ApartmentBuildingSectionModel.cs" />
     <Compile Include="Models\AmenitiesReqModel.cs" />
+    <Compile Include="Models\ZoneBorderModel.cs" />
     <Compile Include="Models\CityModel.cs" />
-    <Compile Include="Models\BuildingBorderModel.cs" />
     <Compile Include="Models\HospitalModel.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Models\ParkingBlockModel.cs" />
@@ -142,6 +142,7 @@
     <Compile Include="Models\ParkingReqModel.cs" />
     <Compile Include="Models\BaseBigAreaModel.cs" />
     <Compile Include="Models\KindergartenModel.cs" />
+    <Compile Include="Models\PlotBorderModel.cs" />
     <Compile Include="Models\SchoolModel.cs" />
     <Compile Include="Models\SiteModel.cs" />
     <Compile Include="Models\StageModel.cs" />

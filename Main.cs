@@ -26,10 +26,14 @@ namespace SiteCalculations
                 mainForm.cbCity.DisplayMember = "CityName";
                 
             }
-            string[] settings = f.RetrieveSettings();
-            mainForm.cbCity.SelectedIndex = (settings[0] != null) ? Functions.cityCalcTypeList.IndexOf(Functions.cityCalcTypeList.Where(x => x.CityName == settings[0]).First()) : mainForm.cbCity.Items.Count - 1;
-            mainForm.bName.Text = (settings[1] != null) ? settings[1] : "";
-            mainForm.Show();
+            try
+            {
+                string[] settings = f.RetrieveSettings();
+                mainForm.cbCity.SelectedIndex = (settings[0] != null) ? Functions.cityCalcTypeList.IndexOf(Functions.cityCalcTypeList.Where(x => x.CityName == settings[0]).First()) : mainForm.cbCity.Items.Count - 1;
+                mainForm.bName.Text = (settings[1] != null) ? settings[1] : "";
+                mainForm.Show();
+            }
+            catch { }
         }
     }
 }
